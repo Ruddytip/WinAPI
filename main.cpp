@@ -23,7 +23,7 @@ int APIENTRY _tWinMain( HINSTANCE   This,
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
     if(!RegisterClass(&wc)) return 0;
     hWnd = CreateWindow(WinName,
-                        _T("Каркас Windows-приложения"),
+                        _T("?????? Windows-??????????"),
                         WS_OVERLAPPEDWINDOW,
                         CW_USEDEFAULT,
                         CW_USEDEFAULT,

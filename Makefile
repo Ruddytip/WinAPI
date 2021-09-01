@@ -1,21 +1,23 @@
-SYSCONF_LINK = g++
-CPPFLAGS     =
-LDFLAGS      =
-LIBS         = -lm
-
-TARGET  = main
-
-OBJECTS := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
+TARGET = main
+SRC := $(wildcard *.cpp)
+CFLAGS = -I. -Wall -std=c++2a
 
 all: $(TARGET)
 
-$(TARGET): $(OBJECTS)
-	$(SYSCONF_LINK) -Wall $(LDFLAGS) -o $(TARGET) $(OBJECTS) $(LIBS)
+$(TARGET): $(SRC)
+	g++ -Wall -o $(TARGET) $(SRC)
 
-$(OBJECTS): %.o: %.cpp
-	$(SYSCONF_LINK) -Wall $(CPPFLAGS) -c $(CFLAGS) $< -o $@
+debug:
+	 g++ -g3 -pg -O3 $(SRC)
+	 a.exe
+	 gprof a.exe
 
 clean:
 	erase $(TARGET).exe
-	erase $(OBJECTS)
 	erase *.tga
+	erase *.out
+	erase a.exe
+
+cleanDebug:
+	erase *.out
+	erase a.exe

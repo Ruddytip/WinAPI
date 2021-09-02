@@ -1,11 +1,16 @@
-#include <windows.h>
+#include "model.hpp"
 
 LRESULT __stdcall WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+Model* model = new Model("obj/african_head.obj");
+static int width = 800;
+static int height = 800;
 
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow){
     WNDCLASS windowClass = { 0 };
     windowClass.lpfnWndProc = WindowProc;
     windowClass.hInstance = hInstance;
+    windowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
     windowClass.lpszClassName = TEXT("RENDERER");
     RegisterClass(&windowClass);
 
@@ -13,7 +18,8 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow){
     windowClass.lpszClassName,
     TEXT("WinAPI"),
     WS_OVERLAPPEDWINDOW,
-    100, 50, 1200, 800,
+    50, 50,
+    width + 50, height + 50,
     nullptr, nullptr,
     hInstance, nullptr);
 
@@ -31,34 +37,6 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow){
     return 0;
 }
 
-#include <iostream>
-void line(HDC hdc, int x0, int y0, int x1, int y1) {
-    bool steep = false;
-    if (std::abs(x0-x1)<std::abs(y0-y1)) {
-        std::swap(x0, y0);
-        std::swap(x1, y1);
-        steep = true;
-    }
-    if (x0>x1) {
-        std::swap(x0, x1);
-        std::swap(y0, y1);
-    }
-    int dx = x1-x0;
-    int dy = y1-y0;
-    int derror2 = std::abs(dy)*2;
-    int error2 = 0;
-    int y = y0;
-    for (int x=x0; x<=x1; x++) {
-        SetPixel(hdc, (steep?y:x), (steep?x:y), RGB(255, 255, 255));
-        error2 += derror2;
-
-        if (error2 > dx) {
-            y += (y1>y0?1:-1);
-            error2 -= dx*2;
-        }
-    }
-}
-
 LRESULT __stdcall WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static PAINTSTRUCT ps;
@@ -72,13 +50,13 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
             GetClientRect(hWnd, &Rect);
             hdc = BeginPaint(hWnd, &ps);
 
-            // Создание теневого контекста для двойной буферизации
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             hCmpDC = CreateCompatibleDC(hdc);
             hBmp = CreateCompatibleBitmap(hdc, Rect.right - Rect.left,
             Rect.bottom - Rect.top);
             SelectObject(hCmpDC, hBmp);
 
-            // Закраска фоновым цветом
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
             LOGBRUSH br;
             br.lbStyle = BS_SOLID;
             br.lbColor = 0x000000;
@@ -87,16 +65,27 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
             FillRect(hCmpDC, &Rect, brush);
             DeleteObject(brush);
 
-            // Здесь рисуем на контексте hCmpDC
-
-            line(hCmpDC, 0, 0, 500, 500);
-
-            // Копируем изображение из теневого контекста на экран
+            // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ hCmpDC
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            for (int i=0; i<model->nfaces(); i++) {
+                std::vector<int> face = model->face(i);
+                for (int j=0; j<3; j++) {
+                    Vec3f v0 = model->vert(face[j]);
+                    Vec3f v1 = model->vert(face[(j+1)%3]);
+                    int x0 = (v0.x+1.) * width / 2.;
+                    int y0 = (v0.y+1.) * height / 2.;
+                    int x1 = (v1.x+1.) * width / 2.;
+                    int y1 = (v1.y+1.) * height / 2.;
+                    line(hCmpDC, x0, y0, x1, y1);
+                }
+            }
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
             SetStretchBltMode(hdc, COLORONCOLOR);
             BitBlt(hdc, 0, 0, Rect.right - Rect.left, Rect.bottom - Rect.top,
             hCmpDC, 0, 0, SRCCOPY);
 
-            // Удаляем ненужные системные объекты
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             DeleteDC(hCmpDC);
             DeleteObject(hBmp);
             hCmpDC = NULL;

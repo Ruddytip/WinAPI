@@ -1,14 +1,14 @@
 TARGET = main
 SRC := $(wildcard *.cpp)
-CFLAGS = -I. -Wall -std=c++2a
+FLAGS = -Wall -std=c++2a -lgdi32
 
 all: $(TARGET)
 
 $(TARGET): $(SRC)
-	g++ -Wall -o $(TARGET) $(SRC)
+	g++ -o $(TARGET) $(SRC) $(FLAGS)
 
 debug:
-	 g++ -g3 -pg -O3 $(SRC)
+	 g++ -g3 -pg -O3 $(SRC) $(FLAGS)
 	 a.exe
 	 gprof a.exe
 

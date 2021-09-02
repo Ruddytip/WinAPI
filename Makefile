@@ -14,7 +14,6 @@ debug:
 
 clean:
 	erase $(TARGET).exe
-	erase *.tga
 	erase *.out
 	erase a.exe
 

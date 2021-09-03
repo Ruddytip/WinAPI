@@ -22,4 +22,5 @@ public:
 	Vec3d getVert(int i);
 	std::vector<int> getFace(int id);
 	void drawMesh(HDC hdc, int size, const COLORREF &color);
+	void drawMeshTriangle(HDC hdc, int size, const COLORREF &color);
 };

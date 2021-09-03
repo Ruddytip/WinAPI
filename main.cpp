@@ -3,7 +3,7 @@
 
 LRESULT __stdcall WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-Model* model = new Model("obj/Heads/Elizabeth.obj");
+Model* model = new Model("obj/Heads/african_head.obj");
 static int size = 800;
 
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow){
@@ -68,15 +68,7 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
             // Здесь рисуем на контексте hCmpDC
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             //model->drawMesh(hCmpDC, size, RGB(255, 0, 255));
-            
-            srand (time(0));
-
-            triangle(hCmpDC,
-                    Vec2i(rand() % size, rand() % size),
-                    Vec2i(rand() % size, rand() % size),
-                    Vec2i(rand() % size, rand() % size),
-                    RGB(255, 0, 0));
-            
+            model->drawMeshTriangle(hCmpDC, size, RGB(255, 0, 255));
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // Копируем изображение из теневого контекста на экран
             SetStretchBltMode(hdc, COLORONCOLOR);

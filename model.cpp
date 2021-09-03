@@ -29,12 +29,6 @@ void line(HDC hdc, int x0, int y0, int x1, int y1, const COLORREF &color) {
 
 void triangle(HDC hdc, Vec2i t0, Vec2i t1, Vec2i t2, const COLORREF &color){
 
-
-
-
-    line(hdc, t0.x, t0.y, t1.x, t1.y, RGB(255, 0, 0));
-    line(hdc, t1.x, t1.y, t2.x, t2.y, RGB(0, 255, 0));
-    line(hdc, t2.x, t2.y, t0.x, t0.y, RGB(0, 255, 0));
 }
 
 Model::Model(const char *filename) : verts(), faces() {
@@ -104,5 +98,19 @@ void Model::drawMesh(HDC hdc, int size, const COLORREF &color){
         int y1 = size - ((v1.y + 1.) * scale) + dy;
         line(hdc, x0, x1, y0, y1, RGB(255, 255, 255));
         } 
+    }
+}
+
+void Model::drawMeshTriangle(HDC hdc, int size, const COLORREF &color){
+    double scale = 200;
+    double dx = size / 2.;
+    double dy = size / 2.;
+    for (unsigned int i = 0; i < faces.size(); ++i) {
+        Vec2i screen_coords[3];
+        for (int j = 0; j < 3; ++j) {
+            Vec3d world_coords = verts[faces[i][j]];
+            screen_coords[j] = Vec2i((world_coords.x+1.) * scale + dx, size - ((world_coords.y+1.) * scale + dy));
+        }
+        triangle(hdc, screen_coords[0], screen_coords[1], screen_coords[2], RGB(rand()%255, rand()%255, rand()%255));
     }
 }

@@ -27,6 +27,16 @@ void line(HDC hdc, int x0, int y0, int x1, int y1, const COLORREF &color) {
     }
 }
 
+void triangle(HDC hdc, Vec2i t0, Vec2i t1, Vec2i t2, const COLORREF &color){
+
+
+
+
+    line(hdc, t0.x, t0.y, t1.x, t1.y, RGB(255, 0, 0));
+    line(hdc, t1.x, t1.y, t2.x, t2.y, RGB(0, 255, 0));
+    line(hdc, t2.x, t2.y, t0.x, t0.y, RGB(0, 255, 0));
+}
+
 Model::Model(const char *filename) : verts(), faces() {
     std::ifstream in;
     in.open (filename, std::ifstream::in);
@@ -81,14 +91,17 @@ Vec3d Model::getVert(int i) {
 }
 
 void Model::drawMesh(HDC hdc, int size, const COLORREF &color){
+    double scale = 0.4;
+    double dx = size / 2.;
+    double dy = 0.0;
     for(unsigned int i = 0; i < faces.size(); ++i){
     for(int j = 0; j < 3; ++j){
         Vec3d v0 = verts[faces[i][j]];
         Vec3d v1 = verts[faces[i][(j + 1) % 3]];
-        int x0 = (v0.x + 1.) * size / 2.;
-        int x1 = size - ((v0.y + 1.) * size / 2.);
-        int y0 = (v1.x + 1.) * size / 2.;
-        int y1 = size - ((v1.y + 1.) * size / 2.);
+        int x0 = (v0.x + 1.) * scale + dx;
+        int x1 = size - ((v0.y + 1.) * scale) + dy;
+        int y0 = (v1.x + 1.) * scale + dx;
+        int y1 = size - ((v1.y + 1.) * scale) + dy;
         line(hdc, x0, x1, y0, y1, RGB(255, 255, 255));
         } 
     }

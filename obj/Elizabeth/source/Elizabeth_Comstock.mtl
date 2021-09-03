@@ -1,0 +1,539 @@
+newmtl Torso
+d 1
+Kd 1 1 1
+map_Kd ./Maps/FG_Bioshock_ElizabethCorset_torso.jpg
+
+newmtl Face
+d 1
+Kd 1 1 1
+map_Kd ./Maps/FG_BioShock_Elizabeth_face.jpg
+
+newmtl Lips
+d 1
+Kd 1 1 1
+map_Kd ./Maps/FG_BioShock_Elizabeth_face.jpg
+
+newmtl Teeth
+d 1
+Kd 1 1 1
+map_Kd ./Maps/g8fbasemouthmapd_1005.jpg
+
+newmtl Ears
+d 1
+Kd 1 1 1
+map_Kd ./Maps/FG_Bioshock_ElizabethCorset_face.jpg
+
+newmtl Legs
+d 1
+Kd 1 1 1
+map_Kd ./Maps/FG_Bioshock_ElizabethCorset_legs.jpg
+
+newmtl EyeSocket
+d 1
+Kd 1 1 1
+
+newmtl Mouth
+d 1
+Kd 1 1 1
+map_Kd ./Maps/g8fbasemouthmapd_1005.jpg
+
+newmtl Arms
+d 1
+Kd 1 1 1
+map_Kd ./Maps/FG_Bioshock_ElizabethCorset_arms.jpg
+
+newmtl Pupils
+d 1
+Kd 1 1 1
+map_Kd ./Maps/UniqueEyeBlue07.jpg
+
+newmtl EyeMoisture
+d 0.995
+Kd 0.72941178 0.72941178 0.72941178
+
+newmtl Fingernails
+d 1
+Kd 1 1 1
+map_Kd ./Maps/FG_Bioshock_ElizabethCorset_arms.jpg
+
+newmtl Cornea
+d 0.995
+Kd 0.72941178 0.72941178 0.72941178
+
+newmtl Irises
+d 1
+Kd 1 1 1
+map_Kd ./Maps/UniqueEyeBlue07.jpg
+
+newmtl Sclera
+d 1
+Kd 1 1 1
+map_Kd ./Maps/UniqueEyeBlue07.jpg
+
+newmtl Toenails
+d 1
+Kd 1 1 1
+map_Kd ./Maps/FG_Bioshock_ElizabethCorset_legs.jpg
+
+newmtl Trans
+d 1
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+map_D ./Maps/Trans.png
+
+newmtl Material_0
+d 1
+Kd 1 1 1
+map_Kd ./Maps/liz_skin_cors_br.png
+
+newmtl EyeMoisture_Genesis_8_Female_Eyelashes
+d 0.995
+Kd 1 1 1
+
+newmtl Eyelashes
+d 1
+Kd 0 0 0
+map_D ./Maps/g8fbaseeyelashes_1006.jpg
+
+newmtl Hair
+d 1
+Ns 1
+Ni 0
+Ka 0.19607843 0.19607843 0.19607843
+Kd 1 1 1
+Ks 0 0 0
+Km 0
+map_Kd ./Maps/liz_bas_hair.png
+map_D ./Maps/liz_bas_hair_t.png
+
+newmtl Brooch_Bird
+d 1
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+map_Kd ./Maps/brooch_bird.png
+
+newmtl Dress
+d 1
+Ns 1
+Ni 0
+Ka 0.19607843 0.19607843 0.19607843
+Kd 1 1 1
+Ks 0 0 0
+Km 0
+map_Kd ./Maps/liz_bas_body.png
+
+newmtl Dress_Elizabeth_Base_Skirt
+d 1
+Ns 1
+Ni 0
+Ka 0.19607843 0.19607843 0.19607843
+Kd 1 1 1
+Ks 0 0 0
+Km 0
+map_Kd ./Maps/liz_bas_body.png
+
+newmtl Genitalia
+d 1
+Kd 1 1 1
+map_Kd ./Maps/FG_Bioshock_ElizabethCorset_torso.jpg
+
+newmtl Anus
+d 1
+Kd 1 1 1
+map_Kd ./Maps/FG_Bioshock_ElizabethCorset_torso.jpg
+
+newmtl Torso_New_Genitalia_For_Victoria_8_-_Effect_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Face_New_Genitalia_For_Victoria_8_-_Effect_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Lips_New_Genitalia_For_Victoria_8_-_Effect_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Teeth_New_Genitalia_For_Victoria_8_-_Effect_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Ears_New_Genitalia_For_Victoria_8_-_Effect_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Legs_New_Genitalia_For_Victoria_8_-_Effect_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl EyeSocket_New_Genitalia_For_Victoria_8_-_Effect_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Mouth_New_Genitalia_For_Victoria_8_-_Effect_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Arms_New_Genitalia_For_Victoria_8_-_Effect_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Trans_New_Genitalia_For_Victoria_8_-_Effect_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Pupils_New_Genitalia_For_Victoria_8_-_Effect_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl EyeMoisture_New_Genitalia_For_Victoria_8_-_Effect_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Fingernails_New_Genitalia_For_Victoria_8_-_Effect_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Cornea_New_Genitalia_For_Victoria_8_-_Effect_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Irises_New_Genitalia_For_Victoria_8_-_Effect_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Sclera_New_Genitalia_For_Victoria_8_-_Effect_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Toenails_New_Genitalia_For_Victoria_8_-_Effect_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl new_gens_V8_1840_Genitalia
+d 0
+Kd 1 1 1
+map_Kd ./Maps/FG_Bioshock_ElizabethCorset_torso.jpg
+map_D ./Maps/GensMapT_Swelling_1009.jpg
+
+newmtl new_gens_V8_1840_Anus
+d 0
+Kd 1 1 1
+map_Kd ./Maps/FG_Bioshock_ElizabethCorset_torso.jpg
+map_D "./Maps/GensMapT_Anus_Base Female_1009.jpg"
+
+newmtl Torso_New_Genitalia_For_Victoria_8_-_Color_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Face_New_Genitalia_For_Victoria_8_-_Color_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Lips_New_Genitalia_For_Victoria_8_-_Color_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Teeth_New_Genitalia_For_Victoria_8_-_Color_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Ears_New_Genitalia_For_Victoria_8_-_Color_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Legs_New_Genitalia_For_Victoria_8_-_Color_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl EyeSocket_New_Genitalia_For_Victoria_8_-_Color_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Mouth_New_Genitalia_For_Victoria_8_-_Color_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Arms_New_Genitalia_For_Victoria_8_-_Color_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Trans_New_Genitalia_For_Victoria_8_-_Color_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Pupils_New_Genitalia_For_Victoria_8_-_Color_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl EyeMoisture_New_Genitalia_For_Victoria_8_-_Color_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Fingernails_New_Genitalia_For_Victoria_8_-_Color_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Cornea_New_Genitalia_For_Victoria_8_-_Color_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Irises_New_Genitalia_For_Victoria_8_-_Color_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Sclera_New_Genitalia_For_Victoria_8_-_Color_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Toenails_New_Genitalia_For_Victoria_8_-_Color_Layer
+d 0.5
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 1 1 1
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl new_gens_V8_1840_Genitalia_New_Genitalia_For_Victoria_8_-_Color_Layer
+d 1
+Kd 1 1 1
+map_Kd ./Maps/GensMapD1_Default_P_1009.jpg
+map_D ./Maps/GensMapT_Default_1009.jpg
+
+newmtl new_gens_V8_1840_Anus_New_Genitalia_For_Victoria_8_-_Color_Layer
+d 1
+Kd 1 1 1
+map_Kd ./Maps/GensMapD_Default_P_1009.jpg
+map_D ./Maps/GensMapT_Default_1009.jpg
+
+newmtl Garter
+d 1
+Kd 1 1 1
+map_Kd ./Maps/defaultMat_BaseColor.jpg
+
+newmtl Lace_Stockings
+d 1
+Kd 1 1 1
+map_Kd ./Maps/defaultMat_BaseColor.jpg
+map_D ./Maps/Opacity.jpg
+
+newmtl Sole
+d 1
+Kd 1 1 1
+map_Kd ./Maps/WingTips03.jpg
+
+newmtl Upper_Outer
+d 1
+Kd 1 1 1
+map_Kd ./Maps/WingTips03.jpg
+
+newmtl Heel_Tip
+d 1
+Kd 0 0 0
+
+newmtl Heel
+d 1
+Kd 1 1 1
+map_Kd ./Maps/WingTips03.jpg
+
+newmtl Upper_Inner
+d 1
+Kd 1 1 1
+map_Kd ./Maps/WingTips03.jpg
+
+newmtl Innersole
+d 1
+Kd 1 1 1
+map_Kd ./Maps/WingTips03.jpg
+
+newmtl Metal
+d 1
+Kd 0.78431374 0.6901961 0.34509805
+
+newmtl GrommetHole
+d 1
+Ns 1
+Ni 0
+Ka 0 0 0
+Kd 0 0 0
+Ks 0.60000002 0.60000002 0.60000002
+Km 0
+
+newmtl Default
+d 1
+Kd 1 1 1
+

@@ -1,11 +1,7 @@
 #include "model.hpp"
-#include <sstream>
 
-void line(HDC hdc, int x0, int y0, int x1, int y1) {
+void line(HDC hdc, int x0, int y0, int x1, int y1, const COLORREF &color) {
     bool steep = false;
-    int8_t n1 = rand() % 255;
-    int8_t n2 = rand() % 255;
-    int8_t n3 = rand() % 255;
     if (std::abs(x0-x1)<std::abs(y0-y1)) {
         std::swap(x0, y0);
         std::swap(x1, y1);
@@ -21,7 +17,7 @@ void line(HDC hdc, int x0, int y0, int x1, int y1) {
     int error2 = 0;
     int y = y0;
     for (int x=x0; x<=x1; x++) {
-        SetPixel(hdc, (steep?y:x), (steep?x:y), RGB(n1, n2, n3));
+        SetPixel(hdc, (steep?y:x), (steep?x:y), color);
         error2 += derror2;
 
         if (error2 > dx) {
@@ -31,73 +27,69 @@ void line(HDC hdc, int x0, int y0, int x1, int y1) {
     }
 }
 
-void triangle(HDC hdc, Vec2i t0, Vec2i t1, Vec2i t2) {
-    int8_t n1 = rand() % 255;
-    int8_t n2 = rand() % 255;
-    int8_t n3 = rand() % 255;
-    if (t0.y==t1.y && t0.y==t2.y) return; // i dont care about degenerate triangles
-    // sort the vertices, t0, t1, t2 lower-to-upper (bubblesort yay!)
-    if (t0.y>t1.y) std::swap(t0, t1);
-    if (t0.y>t2.y) std::swap(t0, t2);
-    if (t1.y>t2.y) std::swap(t1, t2);
-    int total_height = t2.y-t0.y;
-    for (int i=0; i<total_height; i++) {
-        bool second_half = i>t1.y-t0.y || t1.y==t0.y;
-        int segment_height = second_half ? t2.y-t1.y : t1.y-t0.y;
-        float alpha = (float)i/total_height;
-        float beta  = (float)(i-(second_half ? t1.y-t0.y : 0))/segment_height; // be careful: with above conditions no division by zero here
-        Vec2i A =               t0 + (t2-t0)*alpha;
-        Vec2i B = second_half ? t1 + (t2-t1)*beta : t0 + (t1-t0)*beta;
-        if (A.x>B.x) std::swap(A, B);
-        for (int j=A.x; j<=B.x; j++) {
-            SetPixel(hdc, j, t0.y+i, RGB(n1, n2, n3)); // attention, due to int casts t0.y+i != A.y
-        }
-    }
-}
-
-Model::Model(const char *filename) : verts_(), faces_() {
+Model::Model(const char *filename) : verts(), faces() {
     std::ifstream in;
     in.open (filename, std::ifstream::in);
     if (in.fail()) return;
     std::string line;
+    std::string trash;
     while (!in.eof()) {
         std::getline(in, line);
-        std::istringstream iss(line.c_str());
-        char trash;
-        if (!line.compare(0, 2, "v ")) {
+        std::stringstream iss(line);
+        if (line.compare(0, 2, "v ") == 0) {
             iss >> trash;
-            Vec3f v;
-            for (int i = 0; i < 3; i++) iss >> v.raw[i];
-            verts_.push_back(v);
-        } else if (!line.compare(0, 2, "f ")) {
+            Vec3d v;
+            std::string data[3];
+            for(int i = 0; i < 3; ++i) iss >> data[i];
+            v.x = std::stod(data[0]);
+            v.y = std::stod(data[1]);
+            v.z = std::stod(data[2]);
+            verts.push_back(v);
+        }
+        if (line.compare(0, 2, "f ") == 0) {
+            iss >> trash;
             std::vector<int> f;
-            int itrash, idx;
-            iss >> trash;
-            while (iss >> idx >> trash >> itrash >> trash >> itrash) {
-                idx--; // in wavefront obj all indices start at 1, not zero
-                f.push_back(idx);
+            std::string data[3];
+            for(int i = 0; i < 3; ++i) {
+                iss >> data[i];
+                data[i].erase(data[i].find('/'), data[i].length() - 1);
+                f.push_back(std::stoi(data[i]) - 1);
             }
-            faces_.push_back(f);
+            faces.push_back(f);
         }
     }
-    std::cerr << "# v# " << verts_.size() << " f# "  << faces_.size() << std::endl;
+    std::cerr << "# v- " << verts.size() << " f- "  << faces.size() << std::endl;
 }
 
 Model::~Model() {
 }
 
-int Model::nverts() {
-    return (int)verts_.size();
+int Model::getCantidadVerts() {
+    return (int)verts.size();
 }
 
-int Model::nfaces() {
-    return (int)faces_.size();
+int Model::getCantidadFaces() {
+    return (int)faces.size();
 }
 
-std::vector<int> Model::face(int idx) {
-    return faces_[idx];
+std::vector<int> Model::getFace(int id) {
+    return faces[id];
 }
 
-Vec3f Model::vert(int i) {
-    return verts_[i];
+Vec3d Model::getVert(int i) {
+    return verts[i];
+}
+
+void Model::drawMesh(HDC hdc, int size, const COLORREF &color){
+    for(unsigned int i = 0; i < faces.size(); ++i){
+    for(int j = 0; j < 3; ++j){
+        Vec3d v0 = verts[faces[i][j]];
+        Vec3d v1 = verts[faces[i][(j + 1) % 3]];
+        int x0 = (v0.x + 1.) * size / 2.;
+        int x1 = size - ((v0.y + 1.) * size / 2.);
+        int y0 = (v1.x + 1.) * size / 2.;
+        int y1 = size - ((v1.y + 1.) * size / 2.);
+        line(hdc, x0, x1, y0, y1, RGB(255, 255, 255));
+        } 
+    }
 }

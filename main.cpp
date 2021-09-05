@@ -3,7 +3,9 @@
 
 LRESULT __stdcall WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-Model* model = new Model("obj/Heads/african_head.obj");
+//Model* model = new Model("obj/Heads/african_head.obj");
+//Model* model = new Model("obj/Heads/Elizabeth.obj");
+//Model* model = new Model("obj/Elizabeth/source/Elizabeth.obj");
 static int size = 800;
 
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow){
@@ -19,7 +21,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow){
     TEXT("Окно рендера модели"),
     WS_OVERLAPPEDWINDOW,
     50, 50,
-    size + 50, size + 50,
+    size + 40, size + 40,
     nullptr, nullptr,
     hInstance, nullptr);
 
@@ -67,8 +69,9 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
             // Здесь рисуем на контексте hCmpDC
             ////////////////////////////////////////////////////////////////////////////////////////////////////
-            //model->drawMesh(hCmpDC, size, RGB(255, 0, 255));
-            model->drawMeshTriangle(hCmpDC, size, RGB(255, 0, 255));
+            //model->drawMesh(hCmpDC, size, RGB(255, 255, 255));
+            //model->drawMeshTriangle(hCmpDC, size, RGB(rand()%255, 255, 255));
+            triangle(hCmpDC, Vec2i(100, 100), Vec2i(700,300), Vec2i(400, 400), RGB(255, 255, 255));
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // Копируем изображение из теневого контекста на экран
             SetStretchBltMode(hdc, COLORONCOLOR);

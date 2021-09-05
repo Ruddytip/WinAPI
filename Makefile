@@ -1,6 +1,8 @@
 TARGET = main
+DEBUG = Debug
 SRC := $(wildcard *.cpp)
-FLAGS = -Wall -std=c++2a -lgdi32
+FLAGS = -Wall -std=c++2a -lgdi32 -O3
+DIR = ./
 
 all: $(TARGET)
 
@@ -8,15 +10,13 @@ $(TARGET): $(SRC)
 	g++ -o $(TARGET) $(SRC) $(FLAGS)
 
 debug:
-	 g++ -g3 -pg -O3 $(SRC) $(FLAGS)
-	 a.exe
-	 gprof a.exe
+	 g++ -g3 -pg -O3 -o $(DEBUG) $(SRC) $(FLAGS)
+	 $(DEBUG).exe
+	 gprof $(DEBUG).exe
 
 clean:
-	erase $(TARGET).exe
-	erase *.out
-	erase a.exe
-
-cleanDebug:
-	erase *.out
-	erase a.exe
+	-rm $(TARGET).exe
+	
+clean$(DEBUG):
+	-rm $(DEBUG).exe
+	-rm *.out

@@ -14,6 +14,7 @@ class Model{
     private:
 	std::vector<Vec3d> verts;
 	std::vector<std::vector<int> > faces;
+	Vec3d Min, Max;
 public:
 	Model(const char *filename);
 	~Model();

@@ -27,31 +27,34 @@ void line(HDC hdc, int x0, int y0, int x1, int y1, const COLORREF &color) {
     }
 }
 
+double helpPointPos(Vec2i p, Vec2i a, Vec2i b){
+    return (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x);
+}
+
+bool inTriangle(Vec2i p,  Vec2i t0, Vec2i t1, Vec2i t2){
+    double q0 = helpPointPos(p, t0, t1);
+    double q1 = helpPointPos(p, t1, t2);
+    double q2 = helpPointPos(p, t2, t0);
+    return (q0>=0 && q1>=0 && q2>=0) || (q0<=0 && q1<=0 && q2<=0);
+}
+
 void triangle(HDC hdc, Vec2i t0, Vec2i t1, Vec2i t2, const COLORREF &color){
     if (t0.y == t1.y && t0.y == t2.y) return;
+    if (t0.x == t1.x && t0.x == t2.x) return;
+
+    if(t0.y > t1.y) std::swap(t0, t1);
+    if(t0.y > t2.y) std::swap(t0, t2);
+    if(t1.y > t2.y) std::swap(t1, t2);
 
     Vec2i Min = t0, Max = t0;
     Min.x = t1.x < Min.x? t1.x: Min.x; Max.x = t1.x > Max.x? t1.x: Max.x;
+    Min.y = t1.y < Min.y? t1.y: Min.y; Max.y = t1.y > Max.y? t1.y: Max.y;
+    Min.x = t2.x < Min.x? t2.x: Min.x; Max.x = t2.x > Max.x? t2.x: Max.x;
     Min.y = t2.y < Min.y? t2.y: Min.y; Max.y = t2.y > Max.y? t2.y: Max.y;
-    line(hdc, Min.x, Min.y, Max.x, Min.y, RGB(255, 0, 0));
-    line(hdc, Min.x, Max.y, Max.x, Max.y, RGB(255, 0, 0));
-    line(hdc, Min.x, Min.y, Min.x, Max.y, RGB(255, 0, 0));
-    line(hdc, Max.x, Min.y, Max.x, Max.y, RGB(255, 0, 0));
 
-    if (t0.y > t1.y) std::swap(t0, t1);
-    if (t0.y > t2.y) std::swap(t0, t2);
-    if (t1.y > t2.y) std::swap(t1, t2);
-    int total_height = t2.y - t0.y;
-    for (int i = 0; i < total_height; ++i) {
-        bool second_half = i > t1.y - t0.y || t1.y == t0.y;
-        int segment_height = second_half ? t2.y - t1.y : t1.y - t0.y;
-        double alpha = (double) i / total_height;
-        double beta  = (double)(i - (second_half ? t1.y - t0.y : 0)) / segment_height;
-        Vec2i A =               t0 + (t2 - t0) * alpha;
-        Vec2i B = second_half ? t1 + (t2 - t1) * beta : t0 + (t1 - t0) * beta;
-        if (A.x > B.x) std::swap(A, B);
-        for(int j = A.x; j <= B.x; ++j){
-            SetPixel(hdc, j, t0.y + i, color);
+    for(int j = Min.y; j <= Max.y; ++j){
+        for(int i = Min.x; i <= Max.x; ++i){
+            if(inTriangle(Vec2i(i, j), t0, t1, t2)) SetPixel(hdc, i, j, color);
         }
     }
 }
@@ -98,8 +101,6 @@ Model::Model(const char *filename) : verts(), faces() {
         }
     }
     std::cerr << "# v- " << verts.size() << " f- "  << faces.size() << std::endl;
-    std::cerr << "Min - " << Min.x << ' ' << Min.y << ' ' << Min.z << std::endl;
-    std::cerr << "Max - " << Max.x << ' ' << Max.y << ' ' << Max.z << std::endl;
 }
 
 Model::~Model() {

@@ -16,6 +16,9 @@ debug:
 
 clean:
 	-rm $(TARGET).exe
+
+clean32:
+	erase $(TARGET).exe
 	
 clean$(DEBUG):
 	-rm $(DEBUG).exe

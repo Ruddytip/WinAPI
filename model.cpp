@@ -1,8 +1,10 @@
 #include "model.hpp"
 
-void line(HDC hdc, int x0, int y0, int x1, int y1, const COLORREF &color) {
+void line(HDC hdc, Vec2i t0, Vec2i t1, const COLORREF &color) {
+    int x0 = t0.x, y0 = t0.y;
+    int x1 = t1.x, y1 = t1.y;
     bool steep = false;
-    if (std::abs(x0-x1)<std::abs(y0-y1)) {
+    if (std::abs(x0 - x1) < std::abs(y0 - y1)) {
         std::swap(x0, y0);
         std::swap(x1, y1);
         steep = true;
@@ -11,18 +13,18 @@ void line(HDC hdc, int x0, int y0, int x1, int y1, const COLORREF &color) {
         std::swap(x0, x1);
         std::swap(y0, y1);
     }
-    int dx = x1-x0;
-    int dy = y1-y0;
-    int derror2 = std::abs(dy)*2;
+    int dx = x1 - x0;
+    int dy = y1 - y0;
+    int derror2 = std::abs(dy) * 2;
     int error2 = 0;
     int y = y0;
-    for (int x=x0; x<=x1; x++) {
+    for (int x = x0; x <= x1; x++) {
         SetPixel(hdc, (steep?y:x), (steep?x:y), color);
         error2 += derror2;
 
         if (error2 > dx) {
-            y += (y1>y0?1:-1);
-            error2 -= dx*2;
+            y += (y1 > y0 ? 1 : -1);
+            error2 -= dx * 2;
         }
     }
 }
@@ -59,7 +61,7 @@ void triangle(HDC hdc, Vec2i t0, Vec2i t1, Vec2i t2, const COLORREF &color){
     }
 }
 
-Model::Model(const char *filename) : verts(), faces() {
+Model::Model(const char *filename, int Size) : verts(), faces(), size(Size) {
     std::ifstream in;
     in.open (filename, std::ifstream::in);
     if (in.fail()) return;
@@ -122,26 +124,7 @@ Vec3d Model::getVert(int i) {
     return verts[i];
 }
 
-void Model::drawMesh(HDC hdc, int size, const COLORREF &color){
-    double x = Max.x - Min.x;
-    double y = Max.y - Min.y;
-    double scale = size / (x > y ? x: y);
-    double dx = - Min.x;
-    double dy = - Min.y;
-    for(unsigned int i = 0; i < faces.size(); ++i){
-    for(int j = 0; j < 3; ++j){
-        Vec3d v0 = verts[faces[i][j]];
-        Vec3d v1 = verts[faces[i][(j + 1) % 3]];
-        int x0 = (v0.x + dx) * scale;
-        int x1 = size - (v0.y + dy) * scale;
-        int y0 = (v1.x + dx) * scale;
-        int y1 = size - (v1.y + dy) * scale;
-        line(hdc, x0, x1, y0, y1, color);
-        } 
-    }
-}
-
-void Model::drawMeshTriangle(HDC hdc, int size, const COLORREF &color){
+void Model::drawMesh(HDC hdc, const COLORREF &color){
     double x = Max.x - Min.x;
     double y = Max.y - Min.y;
     double scale = size / (x > y ? x: y);
@@ -153,6 +136,30 @@ void Model::drawMeshTriangle(HDC hdc, int size, const COLORREF &color){
             Vec3d world_coords = verts[faces[i][j]];
             screen_coords[j] = Vec2i((world_coords.x + dx) * scale, size - ((world_coords.y + dy) * scale));
         }
-        triangle(hdc, screen_coords[0], screen_coords[1], screen_coords[2], RGB(rand()%255, rand()%255, rand()%255));
+        line(hdc, screen_coords[0], screen_coords[1], color);
+        line(hdc, screen_coords[1], screen_coords[2], color);
+        line(hdc, screen_coords[2], screen_coords[0], color);
+    }
+}
+
+void Model::drawMeshTriangle(HDC hdc){
+    double x = Max.x - Min.x;
+    double y = Max.y - Min.y;
+    double scale = size / (x > y ? x: y);
+    double dx = - Min.x;
+    double dy = - Min.y;
+    for (unsigned int i=0; i < faces.size(); i++) {
+        Vec2i screen_coords[3];
+        Vec3d world_coords[3];
+        for (int j=0; j<3; j++) {
+            Vec3d v = verts[faces[i][j]];
+            screen_coords[j] = Vec2i((v.x + dx) * scale, size - (v.y + dy) * scale);
+            world_coords[j]  = v;
+        }
+        Vec3d n = (world_coords[1] - world_coords[0]) ^ (world_coords[2] - world_coords[0]);
+        double intensity = n.coll(Vec3d(0, 0, 1));
+        if (intensity > 0) {
+            triangle(hdc, screen_coords[0], screen_coords[1], screen_coords[2], RGB(intensity * 255, intensity * 255, intensity * 255));
+        }
     }
 }

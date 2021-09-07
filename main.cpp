@@ -4,7 +4,7 @@
 LRESULT __stdcall WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 int size_screen = 800;
 Model* model = new Model("obj/Heads/african_head.obj", size_screen);
-//Model* model = new Model("obj/Heads/Elizabeth.obj", size_screen);
+// Model* model = new Model("obj/Heads/Elizabeth.obj", size_screen);
 //Model* model = new Model("obj/Elizabeth/source/Elizabeth.obj", size_screen);
 
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow){
@@ -68,8 +68,7 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
             
             // Здесь рисуем на контексте hCmpDC
             ////////////////////////////////////////////////////////////////////////////////////////////////////
-            //model->drawMesh(hCmpDC, RGB(255, 255, 255));
-            model->drawMeshTriangle(hCmpDC);
+            model->draw(hCmpDC);
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // Копируем изображение из теневого контекста на экран
             SetStretchBltMode(hdc, COLORONCOLOR);
@@ -90,4 +89,3 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
-

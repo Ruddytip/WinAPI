@@ -1,6 +1,6 @@
 #include "model.hpp"
 
-void line(HDC hdc, Vec2i t0, Vec2i t1, const COLORREF &color) {
+void Model::line(HDC hdc, Vec2i t0, Vec2i t1, const COLORREF &color) {
     int x0 = t0.x, y0 = t0.y;
     int x1 = t1.x, y1 = t1.y;
     bool steep = false;
@@ -29,18 +29,18 @@ void line(HDC hdc, Vec2i t0, Vec2i t1, const COLORREF &color) {
     }
 }
 
-double helpPointPos(Vec2i p, Vec2i a, Vec2i b){
+int helpPointPos(Vec2i p, Vec2i a, Vec2i b){
     return (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x);
 }
 
 bool inTriangle(Vec2i p,  Vec2i t0, Vec2i t1, Vec2i t2){
-    double q0 = helpPointPos(p, t0, t1);
-    double q1 = helpPointPos(p, t1, t2);
-    double q2 = helpPointPos(p, t2, t0);
+    int q0 = helpPointPos(p, t0, t1);
+    int q1 = helpPointPos(p, t1, t2);
+    int q2 = helpPointPos(p, t2, t0);
     return (q0>=0 && q1>=0 && q2>=0) || (q0<=0 && q1<=0 && q2<=0);
 }
 
-void triangle(HDC hdc, Vec2i t0, Vec2i t1, Vec2i t2, const COLORREF &color){
+void Model::triangle(HDC hdc, int* z_buffer, Vec2i t0, Vec2i t1, Vec2i t2, const COLORREF &color){
     if (t0.y == t1.y && t0.y == t2.y) return;
     if (t0.x == t1.x && t0.x == t2.x) return;
 
@@ -79,14 +79,14 @@ Model::Model(const char *filename, int Size) : verts(), faces(), size(Size) {
             v.y = std::stod(data[1]);
             v.z = std::stod(data[2]);
             if(!verts.size()){
-                Min = Max = v;
+                min = max = v;
             }else{
-                Min.x = v.x < Min.x ? v.x: Min.x;
-                Min.y = v.y < Min.y ? v.y: Min.y;
-                Min.z = v.z < Min.z ? v.z: Min.z;
-                Max.x = v.x > Max.x ? v.x: Max.x;
-                Max.y = v.y > Max.y ? v.y: Max.y;
-                Max.z = v.z > Max.z ? v.z: Max.z;
+                min.x = v.x < min.x ? v.x: min.x;
+                min.y = v.y < min.y ? v.y: min.y;
+                min.z = v.z < min.z ? v.z: min.z;
+                max.x = v.x > max.x ? v.x: max.x;
+                max.y = v.y > max.y ? v.y: max.y;
+                max.z = v.z > max.z ? v.z: max.z;
             }
             verts.push_back(v);
         }
@@ -108,28 +108,16 @@ Model::Model(const char *filename, int Size) : verts(), faces(), size(Size) {
 Model::~Model() {
 }
 
-int Model::getCantidadVerts() {
-    return (int)verts.size();
-}
-
-int Model::getCantidadFaces() {
-    return (int)faces.size();
-}
-
-std::vector<int> Model::getFace(int id) {
-    return faces[id];
-}
-
-Vec3d Model::getVert(int i) {
-    return verts[i];
+void Model::draw(HDC hdc){
+    drawMeshTriangle(hdc);
 }
 
 void Model::drawMesh(HDC hdc, const COLORREF &color){
-    double x = Max.x - Min.x;
-    double y = Max.y - Min.y;
+    double x = max.x - min.x;
+    double y = max.y - min.y;
     double scale = size / (x > y ? x: y);
-    double dx = - Min.x;
-    double dy = - Min.y;
+    double dx = - min.x;
+    double dy = - min.y;
     for (unsigned int i = 0; i < faces.size(); ++i) {
         Vec2i screen_coords[3];
         for (int j = 0; j < 3; ++j) {
@@ -143,23 +131,26 @@ void Model::drawMesh(HDC hdc, const COLORREF &color){
 }
 
 void Model::drawMeshTriangle(HDC hdc){
-    double x = Max.x - Min.x;
-    double y = Max.y - Min.y;
+    double x = max.x - min.x;
+    double y = max.y - min.y;
     double scale = size / (x > y ? x: y);
-    double dx = - Min.x;
-    double dy = - Min.y;
-    for (unsigned int i=0; i < faces.size(); i++) {
+    double dx = - min.x;
+    double dy = - min.y;
+    int* z_buffer = new int[size * size];
+    for (long i = 0; i < size * size; ++i) z_buffer[i] = std::numeric_limits<int>::min();
+    for (unsigned int i = 0; i < faces.size(); i++) {
         Vec2i screen_coords[3];
         Vec3d world_coords[3];
-        for (int j=0; j<3; j++) {
+        for (int j = 0; j < 3; j++) {
             Vec3d v = verts[faces[i][j]];
-            screen_coords[j] = Vec2i((v.x + dx) * scale, size - (v.y + dy) * scale);
+            screen_coords[j] = Vec2d((v.x + dx) * scale, size - (v.y + dy) * scale);
             world_coords[j]  = v;
         }
         Vec3d n = (world_coords[1] - world_coords[0]) ^ (world_coords[2] - world_coords[0]);
-        double intensity = n.coll(Vec3d(0, 0, 1));
+        double intensity = n.getCosAngle(Vec3d(0, 0, 1));
         if (intensity > 0) {
-            triangle(hdc, screen_coords[0], screen_coords[1], screen_coords[2], RGB(intensity * 255, intensity * 255, intensity * 255));
+            triangle(hdc, z_buffer, screen_coords[0], screen_coords[1], screen_coords[2], RGB(intensity * 255, intensity * 255, intensity * 255));
         }
     }
+    delete[] z_buffer;
 }

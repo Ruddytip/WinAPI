@@ -4,25 +4,24 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#include <vector>
 #include "geometry.hpp"
-
-void line(HDC hdc, Vec2i t0, Vec2i t1, const COLORREF &color);
-void triangle(HDC hdc, Vec2i t0, Vec2i t1, Vec2i t2, const COLORREF &color);
 
 class Model{
     private:
+	//Массив координат всех вершин
 	std::vector<Vec3d> verts;
+	//Массив с всех граней, содержит массив индексов всех вершин грани
 	std::vector<std::vector<int> > faces;
+	//Размер окна
 	int size;
-	Vec3d Min, Max;
+	//Размеры модели
+	Vec3d min, max;
+	void line(HDC hdc, Vec2i t0, Vec2i t1, const COLORREF &color);
+	void triangle(HDC hdc, int* z_buffer, Vec2i t0, Vec2i t1, Vec2i t2, const COLORREF &color);
 public:
 	Model(const char *filename, int Size);
 	~Model();
-	int getCantidadVerts();
-	int getCantidadFaces();
-	Vec3d getVert(int i);
-	std::vector<int> getFace(int id);
+	void draw(HDC hdc);
 	void drawMesh(HDC hdc, const COLORREF &color);
 	void drawMeshTriangle(HDC hdc);
 };

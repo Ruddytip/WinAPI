@@ -40,7 +40,18 @@ bool inTriangle(Vec2i p,  Vec2i t0, Vec2i t1, Vec2i t2){
     return (q0>=0 && q1>=0 && q2>=0) || (q0<=0 && q1<=0 && q2<=0);
 }
 
-void Model::triangle(HDC hdc, int* z_buffer, Vec2i t0, Vec2i t1, Vec2i t2, const COLORREF &color){
+bool Model::helpZ(Vec2i point, Vec3d t0, Vec3d t1, Vec3d t2, double* z_buffer){
+    Vec3d normal = (t1 - t0) ^ (t2 - t0);
+    double z = (- normal.x * (point.x - t0.x) - normal.y * (point.y - t0.y) + normal.z * t0.z) / normal.z;
+    if(z > z_buffer[point.x + point.y * size]){
+        z_buffer[point.x + point.y * size] = z;
+        return true;
+    }else{
+        return false;
+    }
+}
+
+void Model::triangle(HDC hdc, double* z_buffer, Vec3d t0, Vec3d t1, Vec3d t2, const COLORREF &color){
     if (t0.y == t1.y && t0.y == t2.y) return;
     if (t0.x == t1.x && t0.x == t2.x) return;
 
@@ -48,7 +59,7 @@ void Model::triangle(HDC hdc, int* z_buffer, Vec2i t0, Vec2i t1, Vec2i t2, const
     if(t0.y > t2.y) std::swap(t0, t2);
     if(t1.y > t2.y) std::swap(t1, t2);
 
-    Vec2i Min = t0, Max = t0;
+    Vec3i Min = t0, Max = t0;
     Min.x = t1.x < Min.x? t1.x: Min.x; Max.x = t1.x > Max.x? t1.x: Max.x;
     Min.y = t1.y < Min.y? t1.y: Min.y; Max.y = t1.y > Max.y? t1.y: Max.y;
     Min.x = t2.x < Min.x? t2.x: Min.x; Max.x = t2.x > Max.x? t2.x: Max.x;
@@ -56,7 +67,12 @@ void Model::triangle(HDC hdc, int* z_buffer, Vec2i t0, Vec2i t1, Vec2i t2, const
 
     for(int j = Min.y; j <= Max.y; ++j){
         for(int i = Min.x; i <= Max.x; ++i){
-            if(inTriangle(Vec2i(i, j), t0, t1, t2)) SetPixel(hdc, i, j, color);
+            Vec2i point(i, j);
+            if(inTriangle(point, Vec2i(t0.x, t0.y), Vec2i(t1.x, t1.y), Vec2i(t2.x, t2.y))){
+                if(helpZ(point, t0, t1, t2, z_buffer)){
+                    SetPixel(hdc, i, j, color);
+                }
+            }
         }
     }
 }
@@ -136,21 +152,22 @@ void Model::drawMeshTriangle(HDC hdc){
     double scale = size / (x > y ? x: y);
     double dx = - min.x;
     double dy = - min.y;
-    int* z_buffer = new int[size * size];
+    double* z_buffer = new double[size * size];
     for (long i = 0; i < size * size; ++i) z_buffer[i] = std::numeric_limits<int>::min();
     for (unsigned int i = 0; i < faces.size(); i++) {
-        Vec2i screen_coords[3];
+        Vec3d screen_coords[3];
         Vec3d world_coords[3];
         for (int j = 0; j < 3; j++) {
             Vec3d v = verts[faces[i][j]];
-            screen_coords[j] = Vec2d((v.x + dx) * scale, size - (v.y + dy) * scale);
+            screen_coords[j] = Vec3d((v.x + dx) * scale, size - (v.y + dy) * scale, v.z * scale);
             world_coords[j]  = v;
         }
-        Vec3d n = (world_coords[1] - world_coords[0]) ^ (world_coords[2] - world_coords[0]);
-        double intensity = n.getCosAngle(Vec3d(0, 0, 1));
-        if (intensity > 0) {
+        Vec3d normal = (world_coords[1] - world_coords[0]) ^ (world_coords[2] - world_coords[0]);
+        double intensity = normal.getCosAngle(Vec3d(0, 0, 1.));
+       if (intensity > 0) {
             triangle(hdc, z_buffer, screen_coords[0], screen_coords[1], screen_coords[2], RGB(intensity * 255, intensity * 255, intensity * 255));
-        }
+       }
     }
+
     delete[] z_buffer;
 }

@@ -5,7 +5,7 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 int size_screen = 800;
 Model* model = new Model("obj/Heads/african_head.obj", size_screen);
 // Model* model = new Model("obj/Heads/Elizabeth.obj", size_screen);
-//Model* model = new Model("obj/Elizabeth/source/Elizabeth.obj", size_screen);
+// Model* model = new Model("obj/Elizabeth/source/Elizabeth.obj", size_screen);
 
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow){
     WNDCLASS windowClass = { 0 };

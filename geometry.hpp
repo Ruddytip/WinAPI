@@ -53,7 +53,7 @@ template <typename T> struct Vec3 {
 	//Возвращает вектор с направляющими косинусами для вектора относительно системы координат
 	Vec3<double> getCos()					const { double modul = !(*this); return Vec3<double>(x / modul, y / modul, z / modul); }
 	//Возвращает косинус угола между данным вектором и вектором V
-	double getCosAngle(const Vec3<T> &V)	const { return ((*this) * V) / (!(*this) * !V); }
+	double getCosAngle(const Vec3<T> &V)	const { return double((*this) * V) / (!(*this) * !V); }
 };
 
 typedef Vec2<int> Vec2i;

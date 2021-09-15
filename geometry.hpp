@@ -43,6 +43,8 @@ template <typename T> struct Vec3 {
 	Vec3<T> operator -(const Vec3<T> &V)	const { return Vec3<T>(x - V.x, y - V.y, z - V.z); }
 	//Умножение вектора на число
 	Vec3<T> operator *(float f)				const { return Vec3<T>(x * f, y * f, z * f); }
+	//Деление вектора на число
+	Vec3<T> operator /(float f)				const { return Vec3<T>(x / f, y / f, z / f); }
 	//Скалярное произведение векторов (если значение равно 0, то вектора ортогональны)
 	double  operator *(const Vec3<T> &V)	const { return x * V.x + y * V.y + z * V.z; }
 	//Векторное произведение векторов

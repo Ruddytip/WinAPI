@@ -2,7 +2,7 @@
 #include <ctime>
 
 LRESULT __stdcall WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-int size_screen = 800;
+Vec2i size_screen(1500, 900);
 Model* model = new Model("obj/Heads/african_head.obj", size_screen);
 // Model* model = new Model("obj/Heads/Elizabeth.obj", size_screen);
 // Model* model = new Model("obj/Elizabeth/source/Elizabeth.obj", size_screen);
@@ -20,7 +20,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow){
     TEXT("Окно рендера модели"),
     WS_OVERLAPPEDWINDOW,
     50, 50,
-    size_screen + 40, size_screen + 40,
+    size_screen.x + 40, size_screen.y + 40,
     nullptr, nullptr,
     hInstance, nullptr);
 

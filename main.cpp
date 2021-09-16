@@ -2,10 +2,10 @@
 #include <ctime>
 
 LRESULT __stdcall WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-Vec2i size_screen(1500, 900);
-Model* model = new Model("obj/Heads/african_head.obj", size_screen);
-// Model* model = new Model("obj/Heads/Elizabeth.obj", size_screen);
-// Model* model = new Model("obj/Elizabeth/source/Elizabeth.obj", size_screen);
+Vec2i size_screen(1500, 1000);
+// Model* model = new Model("obj/Heads/african_head.obj", size_screen);
+// Model* model = new Model("obj/Orc/source/Orc.obj", size_screen);
+Model* model = new Model("obj/Elizabeth/source/Elizabeth.obj", size_screen);
 
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow){
     WNDCLASS windowClass = { 0 };
@@ -19,8 +19,8 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow){
     windowClass.lpszClassName,
     TEXT("Окно рендера модели"),
     WS_OVERLAPPEDWINDOW,
-    50, 50,
-    size_screen.x + 40, size_screen.y + 40,
+    0, 0,
+    size_screen.x + 20, size_screen.y + 40,
     nullptr, nullptr,
     hInstance, nullptr);
 

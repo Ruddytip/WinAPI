@@ -21,8 +21,8 @@ class Model{
 	//Z-буфер
 	double* z_buffer;
 	void line(HDC hdc, Vec2i t0, Vec2i t1, const COLORREF &color);
-	void triangle(HDC hdc, Vec2i* t, const COLORREF &color);
-	bool helpZ(Vec2i point, Vec3d t0, Vec3d t1, Vec3d t2, double* z_buffer);
+	void triangle(HDC hdc, Vec3d* t, const COLORREF &color);
+	bool helpZ(Vec2i point, Vec3d* t);
 public:
 	Model(const char *filename, Vec2<unsigned long> _size_screen);
 	~Model();

@@ -69,9 +69,10 @@ void Model::triangle(HDC hdc, Vec3d* t, const COLORREF &color){
     }
 }
 
-Model::Model(const char *filename, Vec2<unsigned long> _size_screen) : verts(), faces(), size_screen(_size_screen) {
+Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(), faces(), groups(), size_screen(_size_screen) {
     std::ifstream in;
-    in.open (filename, std::ifstream::in);
+    int o = 0;
+    in.open(filename + "/source/model.obj", std::ifstream::in);
     if (in.fail()) return;
     std::string line;
     std::string trash;
@@ -98,28 +99,109 @@ Model::Model(const char *filename, Vec2<unsigned long> _size_screen) : verts(), 
             }
             verts.push_back(v);
         }
+        if(!line.compare(0, 2, "vt")){
+            iss >> trash;
+            Vec2d v;
+            std::string data[2];
+            for(int i = 0; i < 2; ++i) iss >> data[i];
+            v.x = std::stod(data[0]);
+            v.y = std::stod(data[1]);
+            uv.push_back(v);
+        }
+        if(!line.compare(0, 2, "vn")){
+            iss >> trash;
+            Vec3d v;
+            std::string data[3];
+            for(int i = 0; i < 3; ++i) iss >> data[i];
+            v.x = std::stod(data[0]);
+            v.y = std::stod(data[1]);
+            v.z = std::stod(data[2]);
+            normals.push_back(v);
+        }
         if (!line.compare(0, 2, "f ")) {
             iss >> trash;
-            std::vector<int> f;
+            face f;
             std::string data[4];
-            for(int i = 0; i < 3; ++i) {
+
+            for(int i = 0; i < 3; ++i){
                 iss >> data[i];
-                data[i].erase(data[i].find('/'), data[i].length() - 1);
-                f.push_back(std::stoi(data[i]) - 1);
+                int count = 0;
+                for(auto j = data[i].begin(); j!= data[i].end(); j++) if(*j == '/') ++count;
+
+                if(count == 0){
+                    f.verts.push_back(  std::stoi(data[i]));
+                }else
+                if(count == 1){
+                    int pos = data[i].find('/');
+                    f.verts.push_back(  std::stoi(data[i].substr(0, pos + 1)) - 1);
+                    f.uv.push_back(     std::stod(data[i].substr(pos + 1, data[i].length() - 1 - pos)) - 1);
+                }else
+                if(count == 2){
+                    int pos1 = data[i].find('/');
+                    int pos2 = data[i].rfind('/');
+                    f.verts.push_back(  std::stoi(data[i].substr(0, pos1 + 1)) - 1);
+                    if((pos2 - pos1) > 1){
+                        f.uv.push_back( std::stod(data[i].substr(pos1 + 1, data[i].length() - pos2 - pos1)) - 1);
+                    }
+                    f.normals.push_back(std::stod(data[i].substr(pos2 + 1, data[i].length() - 1 - pos2)) - 1);
+                }
             }
             faces.push_back(f);
-            iss >> data[3];
-            if(data[3].length()>0){
-                data[3].erase(data[3].find('/'), data[3].length() - 1);
-                std::vector<int> f2;
-                f2.push_back(std::stoi(data[0]) - 1);
-                f2.push_back(std::stoi(data[2]) - 1);
-                f2.push_back(std::stoi(data[3]) - 1);
+
+            if(data[3].length() != 0){
+                face f2;
+                int count = 0;
+                for(auto j = data[3].begin(); j!= data[3].end(); j++) if(*j == '/') ++count;
+
+                if(count == 0){
+                    f2.verts.push_back(f.verts[0]);
+                    f2.verts.push_back(f.verts[2]);
+                    f2.verts.push_back(std::stoi(data[3]) - 1);
+                }else
+                if(count == 1){
+                    int pos = data[3].find('/');
+                    f2.verts.push_back(f.verts[0]);
+                    f2.verts.push_back(f.verts[2]);
+                    f2.verts.push_back(std::stoi(data[3].substr(0, pos + 1)) - 1);
+
+                    f2.uv.push_back(f.uv[0]);
+                    f2.uv.push_back(f.uv[2]);
+                    f2.uv.push_back(std::stod(data[3].substr(pos + 1, data[3].length() - 1 - pos)) - 1);
+                }else
+                if(count == 2){
+                    int pos1 = data[3].find('/');
+                    int pos2 = data[3].rfind('/');
+                    f2.verts.push_back(f.verts[0]);
+                    f2.verts.push_back(f.verts[2]);
+                    f2.verts.push_back(std::stoi(data[3].substr(0, pos1 + 1)) - 1);
+                    if((pos2 - pos1) > 1){
+                        f2.uv.push_back(f.uv[0]);
+                        f2.uv.push_back(f.uv[2]);
+                        f2.uv.push_back(std::stod(data[3].substr(pos1 + 1, data[3].length() - pos2 - pos1)) - 1);
+                    }
+                    f2.normals.push_back(f.normals[0]);
+                    f2.normals.push_back(f.normals[2]);
+                    f2.normals.push_back(std::stod(data[3].substr(pos2 + 1, data[3].length() - 1 - pos2)) - 1);
+                }
                 faces.push_back(f2);
             }
         }
+        if(!line.compare(0, 2, "g ")){
+            iss >> trash;
+            iss >> trash;
+            groups.push_back(trash);
+        }
+        if(!line.compare(0, 2, "o ")){
+            ++o;
+        }
     }
-    std::cerr << "# v- " << verts.size() << " f- "  << faces.size() << std::endl;
+    std::cerr << "\nv  - " << verts.size() << "\nvt - " << uv.size() << "\nvn - "  << normals.size() << "\nf  - "  << faces.size() << std::endl;
+    std::cerr << "Objects - " << o << std::endl;
+    std::cerr << "Groups - " << groups.size() << std::endl;
+    for(unsigned int i = 0; i < groups.size(); ++i)
+        std::cerr << i << " - " << groups[i] << std::endl;
+
+    texture.read_tga_file((filename + "/textures/diffuse.tga").c_str());
 
     z_buffer = new double[size_screen.x * size_screen.y];
     size = Vec3d(max.x - min.x, max.y - min.y, max.z - min.z);
@@ -133,8 +215,6 @@ Model::~Model() {
 void Model::draw(HDC hdc){
     for(int i = 0; i < size_screen.x * size_screen.y; ++i) z_buffer[i] = -std::numeric_limits<double>::max();
     // drawMesh(hdc, RGB(255, 255, 255));
-    // triangle(hdc, z_buffer, Vec3d(0, 0, 500), Vec3d(0, 800, 500), Vec3d(800, 800, 500), RGB(255, 255, 255));
-    // triangle(hdc, z_buffer, Vec3d(0, 0, 500), Vec3d(800, 0, 500), Vec3d(800, 800, 500), RGB(255, 255, 255));
     drawMeshTriangle(hdc);
     // drawZ_buffer(hdc);
 }
@@ -158,7 +238,7 @@ void Model::drawMesh(HDC hdc, const COLORREF &color){
     for (unsigned int i = 0; i < faces.size(); ++i) {
         Vec2i screen_coords[3];
         for (int j = 0; j < 3; ++j) {
-            Vec3d world_coords = verts[faces[i][j]];
+            Vec3d world_coords = verts[faces[i].verts[j]];
             world_coords = (world_coords - min) * scale;
             screen_coords[j] = Vec2i(world_coords.x, size_screen.y - world_coords.y);
         }
@@ -178,9 +258,10 @@ void Model::drawMeshTriangle(HDC hdc){
         Vec3d screen_coords[3];
         Vec3d world_coords[3];
         for (int j = 0; j < 3; j++) {
-            world_coords[j] = verts[faces[i][j]];
+            world_coords[j] = verts[faces[i].verts[j]];
             screen_coords[j] = (world_coords[j] - min) * scale;
             screen_coords[j].y = size_screen.y - screen_coords[j].y;
+            // screen_coords[j].x = screen_coords[j].x - 1000;
         }
         Vec3d normal = (world_coords[0] - world_coords[1]) ^ (world_coords[0] - world_coords[2]);
         double intensity = normal.getCosAngle(Vec3d(0.0, 0.0, 1.0));

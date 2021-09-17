@@ -29,6 +29,12 @@ void Model::line(HDC hdc, Vec2i t0, Vec2i t1, const COLORREF &color) {
     }
 }
 
+double range(double data, double old_min, double old_max, double new_min, double new_max){
+    double old_range = old_max - old_min;
+    double new_range = new_max - new_min;
+    return (((data - old_min) * new_range) / old_range) + new_min;
+}
+
 double helpPointPos(Vec2i p, Vec3d a, Vec3d b){
     return (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x);
 }
@@ -65,6 +71,36 @@ void Model::triangle(HDC hdc, Vec3d* t, const COLORREF &color){
                 if(inTriangle(point, t))
                      if(helpZ(point, t))
                         SetPixel(hdc, i, j, color);
+        }
+    }
+}
+
+void Model::triangle(HDC hdc, Vec3d* t, int n, double nor){
+    Vec3d Min = t[0], Max = t[0];
+    for(int i = 1; i < 3; ++i){
+        Min.x = t[i].x < Min.x? t[i].x: Min.x; Max.x = t[i].x > Max.x? t[i].x: Max.x;
+        Min.y = t[i].y < Min.y? t[i].y: Min.y; Max.y = t[i].y > Max.y? t[i].y: Max.y;
+    }
+
+    Vec2d Mint = Vec2d(uv[faces[n].uv[0]].x, uv[faces[n].uv[0]].y);
+    Vec2d Maxt = Vec2d(uv[faces[n].uv[0]].x, uv[faces[n].uv[0]].y);
+    for(int i = 1; i < 3; ++i){
+        Mint.x = uv[faces[n].uv[i]].x<Mint.x?uv[faces[n].uv[i]].x:Mint.x;
+        Mint.y = uv[faces[n].uv[i]].y<Mint.y?uv[faces[n].uv[i]].y:Mint.y;
+        Maxt.x = uv[faces[n].uv[i]].x>Maxt.x?uv[faces[n].uv[i]].x:Maxt.x;
+        Maxt.y = uv[faces[n].uv[i]].y>Maxt.y?uv[faces[n].uv[i]].y:Maxt.y;
+    }
+
+    for(int j = Min.y; j <= Max.y; ++j){
+        for(int i = Min.x; i <= Max.x; ++i){
+            Vec2i point(i, j);
+                if(inTriangle(point, t))
+                    if(helpZ(point, t)){
+                        double x = range(i, Min.x, Max.x, Mint.x, Maxt.x);
+                        double y = range(j, Max.y, Min.y, Mint.y, Maxt.y);
+                        TGAColor c = texture.get(x * texture.get_width(), y * texture.get_height());
+                        SetPixel(hdc, i, j, RGB(c.r * nor, c.g * nor, c.b * nor));
+                    }                        
         }
     }
 }
@@ -126,32 +162,33 @@ Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(
             for(int i = 0; i < 3; ++i){
                 iss >> data[i];
                 int count = 0;
-                for(auto j = data[i].begin(); j!= data[i].end(); j++) if(*j == '/') ++count;
-
+                for(auto j = data[i].begin(); j <= data[i].end(); ++j) if(*j == '/') ++count;
                 if(count == 0){
-                    f.verts.push_back(  std::stoi(data[i]));
+                    f.verts.push_back(  std::stoi(data[i]) - 1);
                 }else
                 if(count == 1){
                     int pos = data[i].find('/');
-                    f.verts.push_back(  std::stoi(data[i].substr(0, pos + 1)) - 1);
-                    f.uv.push_back(     std::stod(data[i].substr(pos + 1, data[i].length() - 1 - pos)) - 1);
+                    f.verts.push_back(  std::stoi(data[i].substr(0, pos)) - 1);
+                    f.uv.push_back(     std::stoi(data[i].substr(pos + 1, data[i].length() - pos + 1)) - 1);
                 }else
                 if(count == 2){
                     int pos1 = data[i].find('/');
                     int pos2 = data[i].rfind('/');
-                    f.verts.push_back(  std::stoi(data[i].substr(0, pos1 + 1)) - 1);
+                    f.verts.push_back(  std::stoi(data[i].substr(0, pos1)) - 1);
                     if((pos2 - pos1) > 1){
-                        f.uv.push_back( std::stod(data[i].substr(pos1 + 1, data[i].length() - pos2 - pos1)) - 1);
+                        f.uv.push_back( std::stoi(data[i].substr(pos1 + 1, pos2 - pos1 - 1)) - 1);
                     }
-                    f.normals.push_back(std::stod(data[i].substr(pos2 + 1, data[i].length() - 1 - pos2)) - 1);
+                    f.normals.push_back(std::stoi(data[i].substr(pos2 + 1, data[i].length() - pos2 + 1)) - 1);
                 }
             }
             faces.push_back(f);
 
-            if(data[3].length() != 0){
+            iss >> data[3];
+
+            if(data[3].length() > 0){
                 face f2;
                 int count = 0;
-                for(auto j = data[3].begin(); j!= data[3].end(); j++) if(*j == '/') ++count;
+                for(auto j = data[3].begin(); j<= data[3].end(); j++) if(*j == '/') ++count;        
 
                 if(count == 0){
                     f2.verts.push_back(f.verts[0]);
@@ -162,26 +199,27 @@ Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(
                     int pos = data[3].find('/');
                     f2.verts.push_back(f.verts[0]);
                     f2.verts.push_back(f.verts[2]);
-                    f2.verts.push_back(std::stoi(data[3].substr(0, pos + 1)) - 1);
+                    f2.verts.push_back(std::stoi(data[3].substr(0, pos)) - 1);
 
                     f2.uv.push_back(f.uv[0]);
                     f2.uv.push_back(f.uv[2]);
-                    f2.uv.push_back(std::stod(data[3].substr(pos + 1, data[3].length() - 1 - pos)) - 1);
+                    f2.uv.push_back(std::stoi(data[3].substr(pos + 1, data[3].length() - pos + 1)) - 1);
+
                 }else
                 if(count == 2){
                     int pos1 = data[3].find('/');
                     int pos2 = data[3].rfind('/');
                     f2.verts.push_back(f.verts[0]);
-                    f2.verts.push_back(f.verts[2]);
-                    f2.verts.push_back(std::stoi(data[3].substr(0, pos1 + 1)) - 1);
+                    f2.verts.push_back(f.verts[2]);                    
+                    f2.verts.push_back(std::stoi(data[3].substr(0, pos1)) - 1);
                     if((pos2 - pos1) > 1){
                         f2.uv.push_back(f.uv[0]);
                         f2.uv.push_back(f.uv[2]);
-                        f2.uv.push_back(std::stod(data[3].substr(pos1 + 1, data[3].length() - pos2 - pos1)) - 1);
+                        f2.uv.push_back(std::stoi(data[3].substr(pos1 + 1, pos2 - pos1 - 1)) - 1);
                     }
                     f2.normals.push_back(f.normals[0]);
                     f2.normals.push_back(f.normals[2]);
-                    f2.normals.push_back(std::stod(data[3].substr(pos2 + 1, data[3].length() - 1 - pos2)) - 1);
+                    f2.normals.push_back(std::stoi(data[3].substr(pos2 + 1, data[3].length() - pos2 + 1)) - 1);
                 }
                 faces.push_back(f2);
             }
@@ -215,21 +253,15 @@ Model::~Model() {
 void Model::draw(HDC hdc){
     for(int i = 0; i < size_screen.x * size_screen.y; ++i) z_buffer[i] = -std::numeric_limits<double>::max();
     // drawMesh(hdc, RGB(255, 255, 255));
-    drawMeshTriangle(hdc);
+    // drawMeshTriangle(hdc);
+    drawMeshTexture(hdc);
     // drawZ_buffer(hdc);
 }
 
 void Model::drawZ_buffer(HDC hdc){
-    double old_min = (min.z - min.z) * scale;
-    double old_max = (max.z - min.z) * scale;
-    double new_min = 0;
-    double new_max = 255;
-
     for(int j = 0; j < size_screen.y; ++j)
         for(int i = 0; i < size_screen.x; ++i){
-            double old_range = old_max - old_min;
-            double new_range = new_max - new_min;
-            int converted = (((z_buffer[i + j * size_screen.x] - old_min) * new_range) / old_range) + new_min;
+            int converted = range(z_buffer[i + j * size_screen.x], (min.z - min.z) * scale, (max.z - min.z) * scale, 0, 255);
             SetPixel(hdc, i, j, RGB(converted, converted, converted));
         }
 }
@@ -249,11 +281,6 @@ void Model::drawMesh(HDC hdc, const COLORREF &color){
 }
 
 void Model::drawMeshTriangle(HDC hdc){
-    double old_min = 0;
-    double old_max = 1;
-    double new_min = 0;
-    double new_max = 255;
-
     for (unsigned int i = 0; i < faces.size(); ++i) {
         Vec3d screen_coords[3];
         Vec3d world_coords[3];
@@ -261,16 +288,28 @@ void Model::drawMeshTriangle(HDC hdc){
             world_coords[j] = verts[faces[i].verts[j]];
             screen_coords[j] = (world_coords[j] - min) * scale;
             screen_coords[j].y = size_screen.y - screen_coords[j].y;
-            // screen_coords[j].x = screen_coords[j].x - 1000;
         }
         Vec3d normal = (world_coords[0] - world_coords[1]) ^ (world_coords[0] - world_coords[2]);
         double intensity = normal.getCosAngle(Vec3d(0.0, 0.0, 1.0));
         if (intensity > 0) {
-            double old_range = old_max - old_min;
-            double new_range = new_max - new_min;
-            int color = (((intensity - old_min) * new_range) / old_range) + new_min;
-            if(intensity > 0)
-                triangle(hdc, screen_coords, RGB(color, color, color));
+            int color = range(intensity, 0, 1, 0, 255);
+            triangle(hdc, screen_coords, RGB(color, color, color));
         }
+    }
+}
+
+void Model::drawMeshTexture(HDC hdc){
+    for (unsigned int i = 0; i < faces.size(); ++i) {
+        Vec3d screen_coords[3];
+        Vec3d world_coords[3];
+        for (int j = 0; j < 3; j++) {
+            world_coords[j] = verts[faces[i].verts[j]];
+            screen_coords[j] = (world_coords[j] - min) * scale;
+            screen_coords[j].y = size_screen.y - screen_coords[j].y;
+        }
+        Vec3d normal = (world_coords[0] - world_coords[1]) ^ (world_coords[0] - world_coords[2]);
+        double intensity = normal.getCosAngle(Vec3d(0.0, 0.0, 1.0));
+        if(intensity > 0)
+            triangle(hdc, screen_coords, int(i), intensity);
     }
 }

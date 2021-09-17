@@ -17,7 +17,7 @@ class Model{
 	std::vector<Vec3d> normals;
 	//Массив с всех граней, содержит массивы индексов всех вершин, текстурных координат и веторов нормалей
 	std::vector<face> faces;
-	//
+	//Хранит название груп из obj-файла
 	std::vector<std::string> groups;
 	//Размер окна
 	Vec2i size_screen;
@@ -31,6 +31,7 @@ class Model{
 	TGAImage texture;
 	void line(HDC hdc, Vec2i t0, Vec2i t1, const COLORREF &color);
 	void triangle(HDC hdc, Vec3d* t, const COLORREF &color);
+	void triangle(HDC hdc, Vec3d* t, int n, double nor);
 	bool helpZ(Vec2i point, Vec3d* t);
 public:
 	Model(std::string filename, Vec2i _size_screen);
@@ -38,5 +39,6 @@ public:
 	void draw(HDC hdc);
 	void drawMesh(HDC hdc, const COLORREF &color);
 	void drawMeshTriangle(HDC hdc);
+	void drawMeshTexture(HDC hdc);
 	void drawZ_buffer(HDC hdc);
 };

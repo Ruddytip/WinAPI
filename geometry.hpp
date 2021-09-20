@@ -67,14 +67,54 @@ typedef Vec2<double> Vec2d;
 typedef Vec3<int> Vec3i;
 typedef Vec3<double> Vec3d;
 
+// Полигон
 struct face{
+	// Вершины
 	std::vector<int> vert_cords;
+	// Текстурные координаты
 	std::vector<int> uv_cords;
+	// Координаты нормалей
 	std::vector<int> normal_cords;
+	// Название материала
+	std::string material_name;
 };
 
+// Группа (часть модели)
 struct group{
+	// Название группы
 	std::string name;
+	// Полигоны
 	std::vector<face> faces;
+	// Используется для отображения при отрисовке
 	bool visible;
+};
+
+// Материал
+struct material{
+	// Название материала
+	std::string name;
+	// Окружающий цвет (цвет объекта без прямого света), RGB от 0 (мин.) До 1 (макс.)
+	Vec3d Ka;
+	// Используется для диффузного цвета (цвет объекта при белом свете)
+	Vec3d Kd;
+	// Используется для эмиссионного цвета.
+	Vec3d Ke;
+	// Используется для зеркального цвета
+	Vec3d Ks;
+	// Используется для показателя зеркального отражения от 0 до 100
+	double Ns;
+	// Используется для оптической плотности
+	double Ni;
+	// Используется для прозрачности от 0 до 1 (без прозрачности)
+	double d;
+	// "иллюминатор" по параметрам света
+	int illum;
+	// Название используемой текстуры ambient
+	std::string map_Ka;
+	// Название используемой текстуры diffuse
+	std::string map_Kd;
+	// Название используемой текстуры specular
+	std::string map_Ks;
+	// Название используемой текстуры прозрачности
+	std::string map_D;
 };

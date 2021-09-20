@@ -107,7 +107,7 @@ void Model::triangle(HDC hdc, Vec3d* t, int count, int n, double nor){
 
 Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(), groups(), size_screen(_size_screen) {
     std::ifstream in;
-    in.open(filename + "/source/model.obj", std::ifstream::in);
+    in.open(filename + "/model.obj", std::ifstream::in);
     if (in.fail()) return;
     std::string line;
     std::string trash;
@@ -233,6 +233,7 @@ Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(
     texture.read_tga_file((filename + "/textures/diffuse_test.tga").c_str());
     nameModel = filename.substr(filename.rfind('/') + 1, filename.length() - filename.rfind('/') - 1);
     z_buffer = new double[size_screen.x * size_screen.y];
+    for(int i = 0; i < size_screen.x * size_screen.y; ++i) z_buffer[i] = -std::numeric_limits<double>::max();
     size = Vec3d(max.x - min.x, max.y - min.y, max.z - min.z);
     scale = (size_screen.x / size.x)<(size_screen.y / size.y) ? (size_screen.x / size.x) : (size_screen.y / size.y);
     for(unsigned int i = 0; i < groups.size(); ++i) groups[i].visible = true;
@@ -242,47 +243,47 @@ Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(
 
 void Model::initGroups(){
     if(nameModel == "Orc"){
-        // groups[0].visible = false;  //Ð›ÐµÐ²Ñ‹Ð¹ Ð³Ð»Ð°Ð·
-        // groups[1].visible = false;  //ÐŸÑ€Ð°Ð²Ñ‹Ð¹ Ð³Ð»Ð°Ð·
-        // groups[2].visible = false;  //Ð¢ÐµÐ»Ð¾
-        // groups[3].visible = false;  //ÐÐ¸Ð¶Ð½Ð¸Ðµ Ð´Ñ‘ÑÐ½Ð°
-        // groups[4].visible = false;  //Ð—ÑƒÐ± Ð²ÐµÑ€Ñ…Ð½Ð¸Ð¹
-        // groups[5].visible = false;  //Ð—ÑƒÐ± Ð²ÐµÑ€Ñ…Ð½Ð¸Ð¹
-        // groups[6].visible = false;  //Ð—ÑƒÐ± Ð²ÐµÑ€Ñ…Ð½Ð¸Ð¹
-        // groups[7].visible = false;  //Ð—ÑƒÐ± Ð²ÐµÑ€Ñ…Ð½Ð¸Ð¹
-        // groups[8].visible = false;  //Ð—ÑƒÐ± Ð²ÐµÑ€Ñ…Ð½Ð¸Ð¹
-        // groups[9].visible = false;  //Ð—ÑƒÐ± Ð²ÐµÑ€Ñ…Ð½Ð¸Ð¹
-        // groups[10].visible = false; //Ð—ÑƒÐ± Ð½Ð¸Ð¶Ð½Ð¸Ð¹
-        // groups[11].visible = false; //Ð—ÑƒÐ± Ð½Ð¸Ð¶Ð½Ð¸Ð¹
-        // groups[12].visible = false; //Ð—ÑƒÐ± Ð½Ð¸Ð¶Ð½Ð¸Ð¹
-        // groups[13].visible = false; //Ð—ÑƒÐ± Ð½Ð¸Ð¶Ð½Ð¸Ð¹
-        // groups[14].visible = false; //ÐšÐ»Ñ‹Ðº Ð¼Ð°Ð»Ñ‹Ð¹ Ð¿Ñ€Ð°Ð²Ñ‹Ð¹
-        // groups[15].visible = false; //ÐšÐ»Ñ‹Ðº Ð¼Ð°Ð»Ñ‹Ð¹ Ð»ÐµÐ²Ñ‹Ð¹
-        // groups[16].visible = false; //ÐšÐ»Ñ‹Ðº Ð±Ð¾Ð»ÑŒÑˆÐ¾Ð¹ Ð¿Ñ€Ð°Ð²Ñ‹Ð¹
-        // groups[17].visible = false; //ÐšÐ»Ñ‹Ðº Ð±Ð¾Ð»ÑŒÑˆÐ¾Ð¹ Ð»ÐµÐ²Ñ‹Ð¹
-        // groups[18].visible = false; //ÐšÐ¾Ð»ÑŒÑ†Ð¾ Ð² Ð¿Ñ€Ð°Ð²Ð¾Ð¼ ÑƒÑ…Ðµ Ð·Ð°Ð´Ð½ÐµÐµ
-        // groups[19].visible = false; //ÐšÐ¾Ð»ÑŒÑ†Ð¾ Ð² Ð¿Ñ€Ð°Ð²Ð¾Ð¼ ÑƒÑ…Ðµ Ð¿ÐµÑ€ÐµÐ´Ð½ÐµÐµ
-        // groups[20].visible = false; //ÐšÐ¾Ð»ÑŒÑ†Ð¾ Ð² Ð»ÐµÐ²Ð¾Ð¼ ÑƒÑ…Ðµ Ð·Ð°Ð´Ð½ÐµÐµ
-        // groups[21].visible = false; //ÐšÐ¾Ð»ÑŒÑ†Ð¾ Ð² Ð»ÐµÐ²Ð¾Ð¼ ÑƒÑ…Ðµ Ð¿ÐµÑ€ÐµÐ´Ð½ÐµÐµ
-        // groups[22].visible = false; //ÐšÐ¾Ð»ÑŒÑ†Ð¾ Ð½Ð° ÐºÐ»Ñ‹ÐºÐµ
-        // groups[23].visible = false; //ÐšÐ¾Ð»ÑŒÑ†Ð¾ Ð² Ð½Ð¾ÑÑƒ
+        // groups[0].visible = false;  //Ëåâûé ãëàç
+        // groups[1].visible = false;  //Ïðàâûé ãëàç
+        // groups[2].visible = false;  //Òåëî
+        // groups[3].visible = false;  //Íèæíèå ä¸ñíà
+        // groups[4].visible = false;  //Çóá âåðõíèé
+        // groups[5].visible = false;  //Çóá âåðõíèé
+        // groups[6].visible = false;  //Çóá âåðõíèé
+        // groups[7].visible = false;  //Çóá âåðõíèé
+        // groups[8].visible = false;  //Çóá âåðõíèé
+        // groups[9].visible = false;  //Çóá âåðõíèé
+        // groups[10].visible = false; //Çóá íèæíèé
+        // groups[11].visible = false; //Çóá íèæíèé
+        // groups[12].visible = false; //Çóá íèæíèé
+        // groups[13].visible = false; //Çóá íèæíèé
+        // groups[14].visible = false; //Êëûê ìàëûé ïðàâûé
+        // groups[15].visible = false; //Êëûê ìàëûé ëåâûé
+        // groups[16].visible = false; //Êëûê áîëüøîé ïðàâûé
+        // groups[17].visible = false; //Êëûê áîëüøîé ëåâûé
+        // groups[18].visible = false; //Êîëüöî â ïðàâîì óõå çàäíåå
+        // groups[19].visible = false; //Êîëüöî â ïðàâîì óõå ïåðåäíåå
+        // groups[20].visible = false; //Êîëüöî â ëåâîì óõå çàäíåå
+        // groups[21].visible = false; //Êîëüöî â ëåâîì óõå ïåðåäíåå
+        // groups[22].visible = false; //Êîëüöî íà êëûêå
+        // groups[23].visible = false; //Êîëüöî â íîñó
         groups[24].visible = false; //?
         groups[25].visible = false; //?
     }
     if(nameModel == "Elizabeth"){
-        // groups[0].visible = false;  //Ð¢ÐµÐ»Ð¾
-        // groups[1].visible = false;  //ÐÐ°Ð¿Ð°Ð»ÑŒÑ‡Ð½Ð¸Ðº
-        groups[2].visible = false;  //Ð ÐµÑÐ½Ð¸Ñ†Ñ‹
-        // groups[3].visible = false;  //Ð’Ð¾Ð»Ð¾ÑÑ‹
-        // groups[4].visible = false;  //ÐœÐµÐ´Ð°Ð»ÑŒÐµÐ½
-        // groups[5].visible = false;  //Ð¡Ð¾Ñ€Ð¾Ñ‡ÐºÐ°
-        // groups[6].visible = false;  //Ð®Ð±ÐºÐ°
-        groups[7].visible = false;  //Ð¢ÐµÐ»Ð¾
-        groups[8].visible = false;  //Ð¢ÐµÐ»Ð¾
-        groups[9].visible = false;  //ÐŸÐ¾Ð´Ñ‚ÑÐ¶ÐºÐ¸
-        // groups[10].visible = false; //Ð§ÑƒÐ»ÐºÐ¸
-        // groups[11].visible = false; //Ð¢ÑƒÑ„Ð»Ð¸
-        groups[12].visible = false; //Ð¦Ð¸Ð»Ð¸Ð½Ð´Ñ€?
+        // groups[0].visible = false;  //Òåëî
+        // groups[1].visible = false;  //Íàïàëü÷íèê
+        groups[2].visible = false;  //Ðåñíèöû
+        // groups[3].visible = false;  //Âîëîñû
+        // groups[4].visible = false;  //Áðîø
+        // groups[5].visible = false;  //Ñîðî÷êà
+        // groups[6].visible = false;  //Þáêà
+        groups[7].visible = false;  //Òåëî
+        groups[8].visible = false;  //Òåëî
+        groups[9].visible = false;  //Ïîäòÿæêè
+        // groups[10].visible = false; //×óëêè
+        // groups[11].visible = false; //Òóôëè
+        groups[12].visible = false; //Öèëèíäð?
     }
 }
 
@@ -302,7 +303,6 @@ Model::~Model() {
 }
 
 void Model::draw(HDC hdc){
-    for(int i = 0; i < size_screen.x * size_screen.y; ++i) z_buffer[i] = -std::numeric_limits<double>::max();
     drawMeshTriangle(hdc);
     // drawMeshTexture(hdc);
     // drawMesh(hdc, RGB(255, 255, 255));
@@ -310,6 +310,33 @@ void Model::draw(HDC hdc){
 }
 
 void Model::drawZ_buffer(HDC hdc){
+    for(int i = 0; i < size_screen.x * size_screen.y; ++i) z_buffer[i] = -std::numeric_limits<double>::max();
+    for(unsigned int count = 0; count < groups.size(); ++count){
+        if(!groups[count].visible) continue;
+        for (unsigned int i = 0; i < groups[count].faces.size(); ++i) {
+            Vec3d screen_coords[3];
+            Vec3d world_coords[3];
+            for (int j = 0; j < 3; j++) {
+                world_coords[j] = verts[groups[count].faces[i].vert_cords[j]];
+                screen_coords[j] = (world_coords[j] - min) * scale;
+                screen_coords[j].y = size_screen.y - screen_coords[j].y;
+            }
+            Vec3d normal = (world_coords[0] - world_coords[1]) ^ (world_coords[0] - world_coords[2]);
+            double intensity = normal.getCosAngle(Vec3d(0.0, 0.0, 1.0));
+            if (intensity > 0) {
+                Vec3d Min = screen_coords[0], Max = screen_coords[0];
+                for(int k = 1; k < 3; ++k){
+                    Min.x = screen_coords[k].x < Min.x? screen_coords[k].x: Min.x;
+                    Max.x = screen_coords[k].x > Max.x? screen_coords[k].x: Max.x;
+                    Min.y = screen_coords[k].y < Min.y? screen_coords[k].y: Min.y;
+                    Max.y = screen_coords[k].y > Max.y? screen_coords[k].y: Max.y;
+                }
+                for(int j = Min.y; j <= Max.y; ++j)
+                    for(int i = Min.x; i <= Max.x; ++i)
+                        if(inTriangle(Vec2i(i, j), screen_coords)) helpZ(Vec2i(i, j), screen_coords);
+            }
+        }
+    }
     for(int j = 0; j < size_screen.y; ++j)
         for(int i = 0; i < size_screen.x; ++i){
             int converted = range(z_buffer[i + j * size_screen.x], (min.z - min.z) * scale, (max.z - min.z) * scale, 0, 255);
@@ -335,6 +362,7 @@ void Model::drawMesh(HDC hdc, const COLORREF &color){
 }
 
 void Model::drawMeshTriangle(HDC hdc){
+    for(int i = 0; i < size_screen.x * size_screen.y; ++i) z_buffer[i] = -std::numeric_limits<double>::max();
     for(unsigned int count = 0; count < groups.size(); ++count){
         if(!groups[count].visible) continue;
         for (unsigned int i = 0; i < groups[count].faces.size(); ++i) {
@@ -348,8 +376,8 @@ void Model::drawMeshTriangle(HDC hdc){
             Vec3d normal = (world_coords[0] - world_coords[1]) ^ (world_coords[0] - world_coords[2]);
             double intensity = normal.getCosAngle(Vec3d(0.0, 0.0, 1.0));
             if (intensity > 0) {
-                int color = range(intensity, 0, 1, 0, 255);
-                triangle(hdc, screen_coords, RGB(color, color, color));
+                int color = intensity * 255;
+                triangle(hdc, screen_coords, RGB( color, color, color));
             }
         }
     }

@@ -75,20 +75,20 @@ void Model::triangle(HDC hdc, Vec3d* t, const COLORREF &color){
     }
 }
 
-void Model::triangle(HDC hdc, Vec3d* t, int n, double nor){
+void Model::triangle(HDC hdc, Vec3d* t, int count, int n, double nor){
     Vec3d Min = t[0], Max = t[0];
     for(int i = 1; i < 3; ++i){
         Min.x = t[i].x < Min.x? t[i].x: Min.x; Max.x = t[i].x > Max.x? t[i].x: Max.x;
         Min.y = t[i].y < Min.y? t[i].y: Min.y; Max.y = t[i].y > Max.y? t[i].y: Max.y;
     }
 
-    Vec2d Mint = Vec2d(uv[faces[n].uv[0]].x, uv[faces[n].uv[0]].y);
-    Vec2d Maxt = Vec2d(uv[faces[n].uv[0]].x, uv[faces[n].uv[0]].y);
+    Vec2d Mint = Vec2d(uv[groups[count].faces[n].uv_cords[0]].x, uv[groups[count].faces[n].uv_cords[0]].y);
+    Vec2d Maxt = Vec2d(uv[groups[count].faces[n].uv_cords[0]].x, uv[groups[count].faces[n].uv_cords[0]].y);
     for(int i = 1; i < 3; ++i){
-        Mint.x = uv[faces[n].uv[i]].x<Mint.x?uv[faces[n].uv[i]].x:Mint.x;
-        Mint.y = uv[faces[n].uv[i]].y<Mint.y?uv[faces[n].uv[i]].y:Mint.y;
-        Maxt.x = uv[faces[n].uv[i]].x>Maxt.x?uv[faces[n].uv[i]].x:Maxt.x;
-        Maxt.y = uv[faces[n].uv[i]].y>Maxt.y?uv[faces[n].uv[i]].y:Maxt.y;
+        Mint.x = uv[groups[count].faces[n].uv_cords[i]].x<Mint.x?uv[groups[count].faces[n].uv_cords[i]].x:Mint.x;
+        Mint.y = uv[groups[count].faces[n].uv_cords[i]].y<Mint.y?uv[groups[count].faces[n].uv_cords[i]].y:Mint.y;
+        Maxt.x = uv[groups[count].faces[n].uv_cords[i]].x>Maxt.x?uv[groups[count].faces[n].uv_cords[i]].x:Maxt.x;
+        Maxt.y = uv[groups[count].faces[n].uv_cords[i]].y>Maxt.y?uv[groups[count].faces[n].uv_cords[i]].y:Maxt.y;
     }
 
     for(int j = Min.y; j <= Max.y; ++j){
@@ -96,8 +96,8 @@ void Model::triangle(HDC hdc, Vec3d* t, int n, double nor){
             Vec2i point(i, j);
                 if(inTriangle(point, t))
                     if(helpZ(point, t)){
-                        double x = range(i, Min.x, Max.x, Mint.x, Maxt.x);
-                        double y = range(j, Max.y, Min.y, Mint.y, Maxt.y);
+                        double x = range(i, Max.x, Min.x, Mint.x, Maxt.x);
+                        double y = range(j, Min.y, Max.y, Mint.y, Maxt.y);
                         TGAColor c = texture.get(x * texture.get_width(), y * texture.get_height());
                         SetPixel(hdc, i, j, RGB(c.r * nor, c.g * nor, c.b * nor));
                     }                        
@@ -105,9 +105,8 @@ void Model::triangle(HDC hdc, Vec3d* t, int n, double nor){
     }
 }
 
-Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(), faces(), groups(), size_screen(_size_screen) {
+Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(), groups(), size_screen(_size_screen) {
     std::ifstream in;
-    int o = 0;
     in.open(filename + "/source/model.obj", std::ifstream::in);
     if (in.fail()) return;
     std::string line;
@@ -154,6 +153,11 @@ Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(
             v.z = std::stod(data[2]);
             normals.push_back(v);
         }
+        if(!line.compare(0, 2, "g ")){
+            group g;
+            g.name = line.erase(0, 2);
+            groups.push_back(g);
+        }
         if (!line.compare(0, 2, "f ")) {
             iss >> trash;
             face f;
@@ -164,24 +168,24 @@ Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(
                 int count = 0;
                 for(auto j = data[i].begin(); j <= data[i].end(); ++j) if(*j == '/') ++count;
                 if(count == 0){
-                    f.verts.push_back(  std::stoi(data[i]) - 1);
+                    f.vert_cords.push_back(  std::stoi(data[i]) - 1);
                 }else
                 if(count == 1){
                     int pos = data[i].find('/');
-                    f.verts.push_back(  std::stoi(data[i].substr(0, pos)) - 1);
-                    f.uv.push_back(     std::stoi(data[i].substr(pos + 1, data[i].length() - pos + 1)) - 1);
+                    f.vert_cords.push_back(  std::stoi(data[i].substr(0, pos)) - 1);
+                    f.uv_cords.push_back(     std::stoi(data[i].substr(pos + 1, data[i].length() - pos + 1)) - 1);
                 }else
                 if(count == 2){
                     int pos1 = data[i].find('/');
                     int pos2 = data[i].rfind('/');
-                    f.verts.push_back(  std::stoi(data[i].substr(0, pos1)) - 1);
+                    f.vert_cords.push_back(  std::stoi(data[i].substr(0, pos1)) - 1);
                     if((pos2 - pos1) > 1){
-                        f.uv.push_back( std::stoi(data[i].substr(pos1 + 1, pos2 - pos1 - 1)) - 1);
+                        f.uv_cords.push_back( std::stoi(data[i].substr(pos1 + 1, pos2 - pos1 - 1)) - 1);
                     }
-                    f.normals.push_back(std::stoi(data[i].substr(pos2 + 1, data[i].length() - pos2 + 1)) - 1);
+                    f.normal_cords.push_back(std::stoi(data[i].substr(pos2 + 1, data[i].length() - pos2 + 1)) - 1);
                 }
             }
-            faces.push_back(f);
+            groups.back().faces.push_back(f);
 
             iss >> data[3];
 
@@ -191,59 +195,106 @@ Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(
                 for(auto j = data[3].begin(); j<= data[3].end(); j++) if(*j == '/') ++count;        
 
                 if(count == 0){
-                    f2.verts.push_back(f.verts[0]);
-                    f2.verts.push_back(f.verts[2]);
-                    f2.verts.push_back(std::stoi(data[3]) - 1);
+                    f2.vert_cords.push_back(f.vert_cords[0]);
+                    f2.vert_cords.push_back(f.vert_cords[2]);
+                    f2.vert_cords.push_back(std::stoi(data[3]) - 1);
                 }else
                 if(count == 1){
                     int pos = data[3].find('/');
-                    f2.verts.push_back(f.verts[0]);
-                    f2.verts.push_back(f.verts[2]);
-                    f2.verts.push_back(std::stoi(data[3].substr(0, pos)) - 1);
+                    f2.vert_cords.push_back(f.vert_cords[0]);
+                    f2.vert_cords.push_back(f.vert_cords[2]);
+                    f2.vert_cords.push_back(std::stoi(data[3].substr(0, pos)) - 1);
 
-                    f2.uv.push_back(f.uv[0]);
-                    f2.uv.push_back(f.uv[2]);
-                    f2.uv.push_back(std::stoi(data[3].substr(pos + 1, data[3].length() - pos + 1)) - 1);
+                    f2.uv_cords.push_back(f.uv_cords[0]);
+                    f2.uv_cords.push_back(f.uv_cords[2]);
+                    f2.uv_cords.push_back(std::stoi(data[3].substr(pos + 1, data[3].length() - pos + 1)) - 1);
 
                 }else
                 if(count == 2){
                     int pos1 = data[3].find('/');
                     int pos2 = data[3].rfind('/');
-                    f2.verts.push_back(f.verts[0]);
-                    f2.verts.push_back(f.verts[2]);                    
-                    f2.verts.push_back(std::stoi(data[3].substr(0, pos1)) - 1);
+                    f2.vert_cords.push_back(f.vert_cords[0]);
+                    f2.vert_cords.push_back(f.vert_cords[2]);                    
+                    f2.vert_cords.push_back(std::stoi(data[3].substr(0, pos1)) - 1);
                     if((pos2 - pos1) > 1){
-                        f2.uv.push_back(f.uv[0]);
-                        f2.uv.push_back(f.uv[2]);
-                        f2.uv.push_back(std::stoi(data[3].substr(pos1 + 1, pos2 - pos1 - 1)) - 1);
+                        f2.uv_cords.push_back(f.uv_cords[0]);
+                        f2.uv_cords.push_back(f.uv_cords[2]);
+                        f2.uv_cords.push_back(std::stoi(data[3].substr(pos1 + 1, pos2 - pos1 - 1)) - 1);
                     }
-                    f2.normals.push_back(f.normals[0]);
-                    f2.normals.push_back(f.normals[2]);
-                    f2.normals.push_back(std::stoi(data[3].substr(pos2 + 1, data[3].length() - pos2 + 1)) - 1);
+                    f2.normal_cords.push_back(f.normal_cords[0]);
+                    f2.normal_cords.push_back(f.normal_cords[2]);
+                    f2.normal_cords.push_back(std::stoi(data[3].substr(pos2 + 1, data[3].length() - pos2 + 1)) - 1);
                 }
-                faces.push_back(f2);
+                groups.back().faces.push_back(f2);
             }
         }
-        if(!line.compare(0, 2, "g ")){
-            iss >> trash;
-            iss >> trash;
-            groups.push_back(trash);
-        }
-        if(!line.compare(0, 2, "o ")){
-            ++o;
-        }
     }
-    std::cerr << "\nv  - " << verts.size() << "\nvt - " << uv.size() << "\nvn - "  << normals.size() << "\nf  - "  << faces.size() << std::endl;
-    std::cerr << "Objects - " << o << std::endl;
-    std::cerr << "Groups - " << groups.size() << std::endl;
-    for(unsigned int i = 0; i < groups.size(); ++i)
-        std::cerr << i << " - " << groups[i] << std::endl;
 
-    texture.read_tga_file((filename + "/textures/diffuse.tga").c_str());
-
+    texture.read_tga_file((filename + "/textures/diffuse_test.tga").c_str());
+    nameModel = filename.substr(filename.rfind('/') + 1, filename.length() - filename.rfind('/') - 1);
     z_buffer = new double[size_screen.x * size_screen.y];
     size = Vec3d(max.x - min.x, max.y - min.y, max.z - min.z);
     scale = (size_screen.x / size.x)<(size_screen.y / size.y) ? (size_screen.x / size.x) : (size_screen.y / size.y);
+    for(unsigned int i = 0; i < groups.size(); ++i) groups[i].visible = true;
+    initGroups();
+    printInfo();
+}
+
+void Model::initGroups(){
+    if(nameModel == "Orc"){
+        // groups[0].visible = false;  //Левый глаз
+        // groups[1].visible = false;  //Правый глаз
+        // groups[2].visible = false;  //Тело
+        // groups[3].visible = false;  //Нижние дёсна
+        // groups[4].visible = false;  //Зуб верхний
+        // groups[5].visible = false;  //Зуб верхний
+        // groups[6].visible = false;  //Зуб верхний
+        // groups[7].visible = false;  //Зуб верхний
+        // groups[8].visible = false;  //Зуб верхний
+        // groups[9].visible = false;  //Зуб верхний
+        // groups[10].visible = false; //Зуб нижний
+        // groups[11].visible = false; //Зуб нижний
+        // groups[12].visible = false; //Зуб нижний
+        // groups[13].visible = false; //Зуб нижний
+        // groups[14].visible = false; //Клык малый правый
+        // groups[15].visible = false; //Клык малый левый
+        // groups[16].visible = false; //Клык большой правый
+        // groups[17].visible = false; //Клык большой левый
+        // groups[18].visible = false; //Кольцо в правом ухе заднее
+        // groups[19].visible = false; //Кольцо в правом ухе переднее
+        // groups[20].visible = false; //Кольцо в левом ухе заднее
+        // groups[21].visible = false; //Кольцо в левом ухе переднее
+        // groups[22].visible = false; //Кольцо на клыке
+        // groups[23].visible = false; //Кольцо в носу
+        groups[24].visible = false; //?
+        groups[25].visible = false; //?
+    }
+    if(nameModel == "Elizabeth"){
+        // groups[0].visible = false;  //Тело
+        // groups[1].visible = false;  //Напальчник
+        groups[2].visible = false;  //Ресницы
+        // groups[3].visible = false;  //Волосы
+        // groups[4].visible = false;  //Медальен
+        // groups[5].visible = false;  //Сорочка
+        // groups[6].visible = false;  //Юбка
+        groups[7].visible = false;  //Тело
+        groups[8].visible = false;  //Тело
+        groups[9].visible = false;  //Подтяжки
+        // groups[10].visible = false; //Чулки
+        // groups[11].visible = false; //Туфли
+        groups[12].visible = false; //Цилиндр?
+    }
+}
+
+void Model::printInfo(){
+    unsigned long count = 0;
+    std::cerr << nameModel << "\nGroups count - " << groups.size();
+    for(unsigned int i = 0; i < groups.size(); ++i){
+        std::cerr << std::endl << i << " - " << groups[i].name << std::endl;
+        std::cerr << "faces - " << groups[i].faces.size() << std::endl;
+        count += groups[i].faces.size();
+    }
+    std::cerr << "\nTotal verts - " << verts.size() << "\nTotal texture cords - " << uv.size() << "\nTotal normals - "  << normals.size() << "\nTotal faces - "  << count << std::endl;
 }
 
 Model::~Model() {
@@ -252,9 +303,9 @@ Model::~Model() {
 
 void Model::draw(HDC hdc){
     for(int i = 0; i < size_screen.x * size_screen.y; ++i) z_buffer[i] = -std::numeric_limits<double>::max();
+    drawMeshTriangle(hdc);
+    // drawMeshTexture(hdc);
     // drawMesh(hdc, RGB(255, 255, 255));
-    // drawMeshTriangle(hdc);
-    drawMeshTexture(hdc);
     // drawZ_buffer(hdc);
 }
 
@@ -267,49 +318,58 @@ void Model::drawZ_buffer(HDC hdc){
 }
 
 void Model::drawMesh(HDC hdc, const COLORREF &color){
-    for (unsigned int i = 0; i < faces.size(); ++i) {
-        Vec2i screen_coords[3];
-        for (int j = 0; j < 3; ++j) {
-            Vec3d world_coords = verts[faces[i].verts[j]];
-            world_coords = (world_coords - min) * scale;
-            screen_coords[j] = Vec2i(world_coords.x, size_screen.y - world_coords.y);
+    for(unsigned int count = 0; count < groups.size(); ++count){
+        if(!groups[count].visible) continue;
+        for (unsigned int i = 0; i < groups[count].faces.size(); ++i) {
+            Vec2i screen_coords[3];
+            for (int j = 0; j < 3; ++j) {
+                Vec3d world_coords = verts[groups[count].faces[i].vert_cords[j]];
+                world_coords = (world_coords - min) * scale;
+                screen_coords[j] = Vec2i(world_coords.x, size_screen.y - world_coords.y);
+            }
+            line(hdc, screen_coords[0], screen_coords[1], color);
+            line(hdc, screen_coords[1], screen_coords[2], color);
+            line(hdc, screen_coords[2], screen_coords[0], color);
         }
-        line(hdc, screen_coords[0], screen_coords[1], color);
-        line(hdc, screen_coords[1], screen_coords[2], color);
-        line(hdc, screen_coords[2], screen_coords[0], color);
     }
 }
 
 void Model::drawMeshTriangle(HDC hdc){
-    for (unsigned int i = 0; i < faces.size(); ++i) {
-        Vec3d screen_coords[3];
-        Vec3d world_coords[3];
-        for (int j = 0; j < 3; j++) {
-            world_coords[j] = verts[faces[i].verts[j]];
-            screen_coords[j] = (world_coords[j] - min) * scale;
-            screen_coords[j].y = size_screen.y - screen_coords[j].y;
-        }
-        Vec3d normal = (world_coords[0] - world_coords[1]) ^ (world_coords[0] - world_coords[2]);
-        double intensity = normal.getCosAngle(Vec3d(0.0, 0.0, 1.0));
-        if (intensity > 0) {
-            int color = range(intensity, 0, 1, 0, 255);
-            triangle(hdc, screen_coords, RGB(color, color, color));
+    for(unsigned int count = 0; count < groups.size(); ++count){
+        if(!groups[count].visible) continue;
+        for (unsigned int i = 0; i < groups[count].faces.size(); ++i) {
+            Vec3d screen_coords[3];
+            Vec3d world_coords[3];
+            for (int j = 0; j < 3; j++) {
+                world_coords[j] = verts[groups[count].faces[i].vert_cords[j]];
+                screen_coords[j] = (world_coords[j] - min) * scale;
+                screen_coords[j].y = size_screen.y - screen_coords[j].y;
+            }
+            Vec3d normal = (world_coords[0] - world_coords[1]) ^ (world_coords[0] - world_coords[2]);
+            double intensity = normal.getCosAngle(Vec3d(0.0, 0.0, 1.0));
+            if (intensity > 0) {
+                int color = range(intensity, 0, 1, 0, 255);
+                triangle(hdc, screen_coords, RGB(color, color, color));
+            }
         }
     }
 }
 
 void Model::drawMeshTexture(HDC hdc){
-    for (unsigned int i = 0; i < faces.size(); ++i) {
-        Vec3d screen_coords[3];
-        Vec3d world_coords[3];
-        for (int j = 0; j < 3; j++) {
-            world_coords[j] = verts[faces[i].verts[j]];
-            screen_coords[j] = (world_coords[j] - min) * scale;
-            screen_coords[j].y = size_screen.y - screen_coords[j].y;
+    for(unsigned int count = 0; count < groups.size(); ++count){
+        if(!groups[count].visible) continue;
+        for (unsigned int i = 0; i < groups[count].faces.size(); ++i) {
+            Vec3d screen_coords[3];
+            Vec3d world_coords[3];
+            for (int j = 0; j < 3; j++) {
+                world_coords[j] = verts[groups[count].faces[i].vert_cords[j]];
+                screen_coords[j] = (world_coords[j] - min) * scale;
+                screen_coords[j].y = size_screen.y - screen_coords[j].y;
+            }
+            Vec3d normal = (world_coords[0] - world_coords[1]) ^ (world_coords[0] - world_coords[2]);
+            double intensity = normal.getCosAngle(Vec3d(0.0, 0.0, 1.0));
+            if(intensity > 0)
+                triangle(hdc, screen_coords, count, i, intensity);
         }
-        Vec3d normal = (world_coords[0] - world_coords[1]) ^ (world_coords[0] - world_coords[2]);
-        double intensity = normal.getCosAngle(Vec3d(0.0, 0.0, 1.0));
-        if(intensity > 0)
-            triangle(hdc, screen_coords, int(i), intensity);
     }
 }

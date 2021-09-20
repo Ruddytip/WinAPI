@@ -68,7 +68,13 @@ typedef Vec3<int> Vec3i;
 typedef Vec3<double> Vec3d;
 
 struct face{
-	std::vector<int> verts;
-	std::vector<int> uv;
-	std::vector<int> normals;
+	std::vector<int> vert_cords;
+	std::vector<int> uv_cords;
+	std::vector<int> normal_cords;
+};
+
+struct group{
+	std::string name;
+	std::vector<face> faces;
+	bool visible;
 };

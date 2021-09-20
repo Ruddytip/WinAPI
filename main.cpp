@@ -3,8 +3,8 @@
 
 LRESULT __stdcall WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 Vec2i size_screen(1500, 1000);
-Model* model = new Model("obj/Man", size_screen);
-// Model* model = new Model("obj/Orc", size_screen);
+// Model* model = new Model("obj/Man", size_screen);
+Model* model = new Model("obj/Orc", size_screen);
 // Model* model = new Model("obj/Elizabeth", size_screen);
 
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow){
@@ -53,8 +53,7 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
             // Создание теневого контекста для двойной буферизации
             hCmpDC = CreateCompatibleDC(hdc);
-            hBmp = CreateCompatibleBitmap(hdc, Rect.right - Rect.left,
-            Rect.bottom - Rect.top);
+            hBmp = CreateCompatibleBitmap(hdc, Rect.right - Rect.left, Rect.bottom - Rect.top);
             SelectObject(hCmpDC, hBmp);
 
             // Закраска фоновым цветом
@@ -72,8 +71,7 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // Копируем изображение из теневого контекста на экран
             SetStretchBltMode(hdc, COLORONCOLOR);
-            BitBlt(hdc, 0, 0, Rect.right - Rect.left, Rect.bottom - Rect.top,
-            hCmpDC, 0, 0, SRCCOPY);
+            BitBlt(hdc, 0, 0, Rect.right - Rect.left, Rect.bottom - Rect.top, hCmpDC, 0, 0, SRCCOPY);
 
             // Удаляем ненужные системные объекты
             DeleteDC(hCmpDC);

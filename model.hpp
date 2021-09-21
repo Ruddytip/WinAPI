@@ -9,25 +9,27 @@
 
 class Model{
     private:
-	//Название модели
+	// Название модели
 	std::string nameModel;
-	//Массив координат всех вершин
+	// Массив координат всех вершин
 	std::vector<Vec3d> verts;
-	//Массив текстурных координат
+	// Массив текстурных координат
 	std::vector<Vec2d> uv;
-	//Массив нормалей
+	// Массив нормалей
 	std::vector<Vec3d> normals;
-	//Хранит название груп из obj-файла и массив всех граней группы
+	// Хранит название груп из obj-файла и массив всех граней группы
 	std::vector<group> groups;
-	//Размер окна
+	// Масив материалов
+	std::vector<material> materials;
+	// Размер окна
 	Vec2i size_screen;
-	//Размеры модели
+	// Размеры модели
 	Vec3d min, max;
 	Vec3d size;
 	double scale;
-	//Z-буфер
+	// Z-буфер
 	double* z_buffer;
-	//Текстура модели
+	// Текстура модели
 	TGAImage texture;
 	void line(HDC hdc, Vec2i t0, Vec2i t1, const COLORREF &color);
 	void triangle(HDC hdc, Vec3d* t, const COLORREF &color);
@@ -35,6 +37,7 @@ class Model{
 	bool helpZ(Vec2i point, Vec3d* t);
 	void printInfo();
 	void initGroups();
+	void initMaterial(std::string filename);
 public:
 	Model(std::string filename, Vec2i _size_screen);
 	~Model();

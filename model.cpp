@@ -68,9 +68,9 @@ void Model::triangle(HDC hdc, Vec3d* t, const COLORREF &color){
     for(int j = Min.y; j <= Max.y; ++j){
         for(int i = Min.x; i <= Max.x; ++i){
             Vec2i point(i, j);
-                if(inTriangle(point, t))
-                     if(helpZ(point, t))
-                        SetPixel(hdc, i, j, color);
+            if(inTriangle(point, t))
+                if(helpZ(point, t))
+                    SetPixel(hdc, i, j, color);
         }
     }
 }
@@ -94,27 +94,36 @@ void Model::triangle(HDC hdc, Vec3d* t, int count, int n, double nor){
     for(int j = Min.y; j <= Max.y; ++j){
         for(int i = Min.x; i <= Max.x; ++i){
             Vec2i point(i, j);
-                if(inTriangle(point, t))
-                    if(helpZ(point, t)){
-                        double x = range(i, Max.x, Min.x, Mint.x, Maxt.x);
-                        double y = range(j, Min.y, Max.y, Mint.y, Maxt.y);
-                        TGAColor c = texture.get(x * texture.get_width(), y * texture.get_height());
-                        SetPixel(hdc, i, j, RGB(c.r * nor, c.g * nor, c.b * nor));
-                    }                        
+            if(inTriangle(point, t))
+                if(helpZ(point, t)){
+                    // double x = range(i, Max.x, Min.x, Mint.x, Maxt.x);
+                    // double y = range(j, Min.y, Max.y, Mint.y, Maxt.y);
+                    int c = range(groups[count].faces[n].material_id, 1, materials.size(), 0, 255);
+                    // TGAColor c = texture.get(x * texture.get_width(), y * texture.get_height());
+                    SetPixel(hdc, i, j, RGB(c, c, c));
+                }                        
         }
     }
 }
 
-Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(), groups(), size_screen(_size_screen) {
+Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(), groups(), materials(), size_screen(_size_screen) {
     std::ifstream in;
     in.open(filename + "/model.obj", std::ifstream::in);
     if (in.fail()) return;
-    std::string line;
-    std::string trash;
+    std::string line, trash, mtllib, material_name("Default");
+    int index = 0;
     while (!in.eof()) {
         std::getline(in, line);
         std::stringstream iss(line);
-        if (!line.compare(0, 2, "v ")) {
+        if(!line.compare(0, 7, "mtllib ")) {
+            mtllib = line.erase(0, 7);
+            initMaterial(filename + "/" + mtllib);
+        }
+        if(!line.compare(0, 7, "usemtl ")) {
+            material_name = line.erase(0, 7);
+            for(unsigned int i = 0; i < materials.size(); ++i) if(materials[i].name == material_name) {index = i; break;}
+        }
+        if(!line.compare(0, 2, "v ")) {
             iss >> trash;
             Vec3d v;
             std::string data[3];
@@ -134,7 +143,7 @@ Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(
             }
             verts.push_back(v);
         }
-        if(!line.compare(0, 2, "vt")){
+        if(!line.compare(0, 3, "vt ")){
             iss >> trash;
             Vec2d v;
             std::string data[2];
@@ -143,7 +152,7 @@ Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(
             v.y = std::stod(data[1]);
             uv.push_back(v);
         }
-        if(!line.compare(0, 2, "vn")){
+        if(!line.compare(0, 3, "vn ")){
             iss >> trash;
             Vec3d v;
             std::string data[3];
@@ -158,7 +167,7 @@ Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(
             g.name = line.erase(0, 2);
             groups.push_back(g);
         }
-        if (!line.compare(0, 2, "f ")) {
+        if(!line.compare(0, 2, "f ")) {
             iss >> trash;
             face f;
             std::string data[4];
@@ -185,6 +194,7 @@ Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(
                     f.normal_cords.push_back(std::stoi(data[i].substr(pos2 + 1, data[i].length() - pos2 + 1)) - 1);
                 }
             }
+            f.material_id = index;
             groups.back().faces.push_back(f);
 
             iss >> data[3];
@@ -225,6 +235,7 @@ Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(
                     f2.normal_cords.push_back(f.normal_cords[2]);
                     f2.normal_cords.push_back(std::stoi(data[3].substr(pos2 + 1, data[3].length() - pos2 + 1)) - 1);
                 }
+                f2.material_id = index;
                 groups.back().faces.push_back(f2);
             }
         }
@@ -238,7 +249,79 @@ Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(
     scale = (size_screen.x / size.x)<(size_screen.y / size.y) ? (size_screen.x / size.x) : (size_screen.y / size.y);
     for(unsigned int i = 0; i < groups.size(); ++i) groups[i].visible = true;
     initGroups();
-    printInfo();
+    // printInfo();
+}
+
+void Model::initMaterial(std::string filename){
+    material m = {"Default", Vec3d(1, 1, 1), Vec3d(1, 1, 1), Vec3d(0, 0, 0), Vec3d(0, 0, 0), 0.0, 0.0, 1.0, 0, "", "", "", ""};
+    materials.push_back(m);
+    std::ifstream in;
+    in.open(filename, std::ifstream::in);
+    if (in.fail()) return;
+    std::string line, trash;
+    while (!in.eof()) {
+        std::getline(in, line);
+        if(!line.compare(0, 7, "newmtl ")){
+            m = {line.erase(0, 7), Vec3d(1, 1, 1), Vec3d(1, 1, 1), Vec3d(0, 0, 0), Vec3d(0, 0, 0), 0.0, 0.0, 1.0, 0, "", "", "", ""};
+            while(!in.eof() && line.length()>0){
+                std::getline(in, line);
+                std::stringstream iss(line);
+                if(!line.compare(0, 3, "Ka ")){
+                    iss >> trash;
+                    iss >> trash; m.Ka.x = std::stod(trash);
+                    iss >> trash; m.Ka.y = std::stod(trash);
+                    iss >> trash; m.Ka.z = std::stod(trash);
+                }
+                if(!line.compare(0, 3, "Kd ")){
+                    iss >> trash;
+                    iss >> trash; m.Kd.x = std::stod(trash);
+                    iss >> trash; m.Kd.y = std::stod(trash);
+                    iss >> trash; m.Kd.z = std::stod(trash);
+                }
+                if(!line.compare(0, 3, "Ke ")){
+                    iss >> trash;
+                    iss >> trash; m.Ke.x = std::stod(trash);
+                    iss >> trash; m.Ke.y = std::stod(trash);
+                    iss >> trash; m.Ke.z = std::stod(trash);
+                }
+                if(!line.compare(0, 3, "Ks ")){
+                    iss >> trash;
+                    iss >> trash; m.Ks.x = std::stod(trash);
+                    iss >> trash; m.Ks.y = std::stod(trash);
+                    iss >> trash; m.Ks.z = std::stod(trash);
+                }
+                if(!line.compare(0, 3, "Ns ")){
+                    iss >> trash;
+                    iss >> trash; m.Ns = std::stod(trash);
+                }
+                if(!line.compare(0, 3, "Ni ")){
+                    iss >> trash;
+                    iss >> trash; m.Ni = std::stod(trash);
+                }
+                if(!line.compare(0, 2, "d ")){
+                    iss >> trash;
+                    iss >> trash; m.d = std::stod(trash);
+                }
+                if(!line.compare(0, 7, "map_Ka ")){
+                    iss >> trash;
+                    iss >> trash; m.map_Ka = trash;
+                }
+                if(!line.compare(0, 7, "map_Kd ")){
+                    iss >> trash;
+                    iss >> trash; m.map_Kd = trash;
+                }
+                if(!line.compare(0, 7, "map_Ks ")){
+                    iss >> trash;
+                    iss >> trash; m.map_Ks = trash;
+                }
+                if(!line.compare(0, 6, "map_D ")){
+                    iss >> trash;
+                    iss >> trash; m.map_D = trash;
+                }
+            }
+            materials.push_back(m);
+        }
+    }
 }
 
 void Model::initGroups(){
@@ -277,7 +360,7 @@ void Model::initGroups(){
         // groups[3].visible = false;  //Волосы
         // groups[4].visible = false;  //Брош
         // groups[5].visible = false;  //Сорочка
-        // groups[6].visible = false;  //Юбка
+        groups[6].visible = false;  //Юбка
         groups[7].visible = false;  //Тело
         groups[8].visible = false;  //Тело
         groups[9].visible = false;  //Подтяжки
@@ -303,8 +386,8 @@ Model::~Model() {
 }
 
 void Model::draw(HDC hdc){
-    drawMeshTriangle(hdc);
-    // drawMeshTexture(hdc);
+    // drawMeshTriangle(hdc);
+    drawMeshTexture(hdc);
     // drawMesh(hdc, RGB(255, 255, 255));
     // drawZ_buffer(hdc);
 }
@@ -384,6 +467,7 @@ void Model::drawMeshTriangle(HDC hdc){
 }
 
 void Model::drawMeshTexture(HDC hdc){
+    for(int i = 0; i < size_screen.x * size_screen.y; ++i) z_buffer[i] = -std::numeric_limits<double>::max();
     for(unsigned int count = 0; count < groups.size(); ++count){
         if(!groups[count].visible) continue;
         for (unsigned int i = 0; i < groups[count].faces.size(); ++i) {

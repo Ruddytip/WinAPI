@@ -75,8 +75,8 @@ struct face{
 	std::vector<int> uv_cords;
 	// Координаты нормалей
 	std::vector<int> normal_cords;
-	// Название материала
-	std::string material_name;
+	// Индекс материала
+	int material_id;
 };
 
 // Группа (часть модели)

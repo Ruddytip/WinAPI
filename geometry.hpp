@@ -83,12 +83,6 @@ struct face{
 struct object{
 	// Название обекта
 	std::string name;
-	// Массив координат всех вершин обекта
-	std::vector<Vec3d> verts;
-	// Массив текстурных координат обекта
-	std::vector<Vec2d> uv;
-	// Массив нормалей обекта
-	std::vector<Vec3d> normals;
 	// Массив граней
 	std::vector<face> faces;
 	// Используется для отображения при отрисовке

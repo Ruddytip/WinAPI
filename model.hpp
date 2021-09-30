@@ -11,12 +11,18 @@ class Model{
     private:
 	// Название модели
 	std::string nameModel;
-	// Хранит название групп из obj-файла
+	// Массив координат всех вершин обекта
+	std::vector<Vec3d> verts;
+	// Массив текстурных координат обекта
+	std::vector<Vec2d> uv;
+	// Массив нормалей обекта
+	std::vector<Vec3d> normals;
+	// Хранит название групп из obj-файла и объекты в этих группах
 	std::vector<group> groups;
-	// Массив материалов
-	std::vector<material> materials;
 	// Массив текстур
 	std::vector<TGAImage> textures;
+	// Массив материалов
+	std::vector<material> materials;
 	// Размер окна
 	Vec2i size_screen;
 	// Размеры модели

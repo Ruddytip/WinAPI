@@ -67,24 +67,40 @@ typedef Vec2<double> Vec2d;
 typedef Vec3<int> Vec3i;
 typedef Vec3<double> Vec3d;
 
-// Полигон
+// Грань
 struct face{
-	// Вершины
-	std::vector<int> vert_cords;
-	// Текстурные координаты
-	std::vector<int> uv_cords;
-	// Координаты нормалей
-	std::vector<int> normal_cords;
-	// Индекс материала
-	int material_id;
+	// Массив индексов вершин
+	std::vector<int> id_v;
+	// Массив индексов текстурных вершин
+	std::vector<int> id_vt;
+	// Массив индексов нормалей
+	std::vector<int> id_vn;
+	// Массив индексов {0-материала, 1-текстуры, 2-карты нормалей}
+	std::vector<int> id_mtm;
 };
 
-// Группа (часть модели)
+// Обект (часть модели)
+struct object{
+	// Название обекта
+	std::string name;
+	// Массив координат всех вершин обекта
+	std::vector<Vec3d> verts;
+	// Массив текстурных координат обекта
+	std::vector<Vec2d> uv;
+	// Массив нормалей обекта
+	std::vector<Vec3d> normals;
+	// Массив граней
+	std::vector<face> faces;
+	// Используется для отображения при отрисовке
+	bool visible;
+};
+
+// Группа объектов
 struct group{
 	// Название группы
 	std::string name;
-	// Полигоны
-	std::vector<face> faces;
+	// Обекты
+	std::vector<object> objects;
 	// Используется для отображения при отрисовке
 	bool visible;
 };

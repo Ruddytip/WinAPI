@@ -106,66 +106,56 @@ void Model::triangle(HDC hdc, Vec3d* t, int count, int n, double nor){
     }
 }
 
-Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(), groups(), materials(), size_screen(_size_screen) {
+Model::Model(std::string filename, Vec2i _size_screen) : groups(), textures(), materials(), size_screen(_size_screen) {
     std::ifstream in;
     in.open(filename + "/model.obj", std::ifstream::in);
     if (in.fail()) return;
-    std::string line, trash, mtllib, material_name("Default");
+    std::string line, trash;
     int index = 0;
     while (!in.eof()) {
         std::getline(in, line);
         std::stringstream iss(line);
         if(!line.compare(0, 7, "mtllib ")) {
-            mtllib = line.erase(0, 7);
-            initMaterial(filename + "/" + mtllib);
+            initMaterials(filename + "/" + line.erase(0, 7));
+            initTextures();
+            initMaps();
         }
         if(!line.compare(0, 7, "usemtl ")) {
-            material_name = line.erase(0, 7);
-            for(unsigned int i = 0; i < materials.size(); ++i) if(materials[i].name == material_name) {index = i; break;}
-        }
-        if(!line.compare(0, 2, "v ")) {
-            iss >> trash;
-            Vec3d v;
-            std::string data[3];
-            for(int i = 0; i < 3; ++i) iss >> data[i];
-            v.x = std::stod(data[0]);
-            v.y = std::stod(data[1]);
-            v.z = std::stod(data[2]);
-            if(!verts.size()){
-                min = max = v;
-            }else{
-                min.x = v.x < min.x ? v.x: min.x;
-                min.y = v.y < min.y ? v.y: min.y;
-                min.z = v.z < min.z ? v.z: min.z;
-                max.x = v.x > max.x ? v.x: max.x;
-                max.y = v.y > max.y ? v.y: max.y;
-                max.z = v.z > max.z ? v.z: max.z;
-            }
-            verts.push_back(v);
-        }
-        if(!line.compare(0, 3, "vt ")){
-            iss >> trash;
-            Vec2d v;
-            std::string data[2];
-            for(int i = 0; i < 2; ++i) iss >> data[i];
-            v.x = std::stod(data[0]);
-            v.y = std::stod(data[1]);
-            uv.push_back(v);
-        }
-        if(!line.compare(0, 3, "vn ")){
-            iss >> trash;
-            Vec3d v;
-            std::string data[3];
-            for(int i = 0; i < 3; ++i) iss >> data[i];
-            v.x = std::stod(data[0]);
-            v.y = std::stod(data[1]);
-            v.z = std::stod(data[2]);
-            normals.push_back(v);
+            trash = line.erase(0, 7);
+            for(unsigned int i = 0; i < materials.size(); ++i) if(materials[i].name == trash) {index = i; break;}
         }
         if(!line.compare(0, 2, "g ")){
             group g;
             g.name = line.erase(0, 2);
+            g.visible = true;
             groups.push_back(g);
+        }
+        if(!line.compare(0, 2, "o ")){
+            object obj;
+            obj.name = line.erase(0, 2);
+            obj.visible = true;
+            groups.end()->objects.push_back(obj);
+        }
+        if(!line.compare(0, 2, "v ")) {
+            iss >> trash;
+            std::string data[3];
+            for(int i = 0; i < 3; ++i) iss >> data[i];
+            Vec3d v(std::stod(data[0]), std::stod(data[1]), std::stod(data[2]));
+            groups.end()->objects.end()->verts.push_back(v);
+        }
+        if(!line.compare(0, 3, "vt ")){
+            iss >> trash;
+            std::string data[2];
+            for(int i = 0; i < 2; ++i) iss >> data[i];
+            Vec2d v(std::stod(data[0]), std::stod(data[1]));
+            groups.end()->objects.end()->uv.push_back(v);
+        }
+        if(!line.compare(0, 3, "vn ")){
+            iss >> trash;
+            std::string data[3];
+            for(int i = 0; i < 3; ++i) iss >> data[i];
+            Vec3d v(std::stod(data[0]), std::stod(data[1]), std::stod(data[2]));
+            groups.end()->objects.end()->normals.push_back(v);
         }
         if(!line.compare(0, 2, "f ")) {
             iss >> trash;
@@ -177,25 +167,25 @@ Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(
                 int count = 0;
                 for(auto j = data[i].begin(); j <= data[i].end(); ++j) if(*j == '/') ++count;
                 if(count == 0){
-                    f.vert_cords.push_back(  std::stoi(data[i]) - 1);
+                    f.id_v.push_back(std::stoi(data[i]) - 1);
                 }else
                 if(count == 1){
                     int pos = data[i].find('/');
-                    f.vert_cords.push_back(  std::stoi(data[i].substr(0, pos)) - 1);
-                    f.uv_cords.push_back(     std::stoi(data[i].substr(pos + 1, data[i].length() - pos + 1)) - 1);
+                    f.id_v.push_back(std::stoi(data[i].substr(0, pos)) - 1);
+                    f.id_vt.push_back(std::stoi(data[i].substr(pos + 1, data[i].length() - pos + 1)) - 1);
                 }else
                 if(count == 2){
                     int pos1 = data[i].find('/');
                     int pos2 = data[i].rfind('/');
-                    f.vert_cords.push_back(  std::stoi(data[i].substr(0, pos1)) - 1);
+                    f.id_v.push_back(std::stoi(data[i].substr(0, pos1)) - 1);
                     if((pos2 - pos1) > 1){
-                        f.uv_cords.push_back( std::stoi(data[i].substr(pos1 + 1, pos2 - pos1 - 1)) - 1);
+                        f.id_vt.push_back(std::stoi(data[i].substr(pos1 + 1, pos2 - pos1 - 1)) - 1);
                     }
-                    f.normal_cords.push_back(std::stoi(data[i].substr(pos2 + 1, data[i].length() - pos2 + 1)) - 1);
+                    f.id_vn.push_back(std::stoi(data[i].substr(pos2 + 1, data[i].length() - pos2 + 1)) - 1);
                 }
             }
-            f.material_id = index;
-            groups.back().faces.push_back(f);
+            // f.material_id = index;
+            groups.end()->objects.end()->faces.push_back(f);
 
             iss >> data[3];
 
@@ -205,54 +195,65 @@ Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(
                 for(auto j = data[3].begin(); j<= data[3].end(); j++) if(*j == '/') ++count;        
 
                 if(count == 0){
-                    f2.vert_cords.push_back(f.vert_cords[0]);
-                    f2.vert_cords.push_back(f.vert_cords[2]);
-                    f2.vert_cords.push_back(std::stoi(data[3]) - 1);
+                    f2.id_v.push_back(f.id_v[0]);
+                    f2.id_v.push_back(f.id_v[2]);
+                    f2.id_v.push_back(std::stoi(data[3]) - 1);
                 }else
                 if(count == 1){
                     int pos = data[3].find('/');
-                    f2.vert_cords.push_back(f.vert_cords[0]);
-                    f2.vert_cords.push_back(f.vert_cords[2]);
-                    f2.vert_cords.push_back(std::stoi(data[3].substr(0, pos)) - 1);
+                    f2.id_v.push_back(f.id_v[0]);
+                    f2.id_v.push_back(f.id_v[2]);
+                    f2.id_v.push_back(std::stoi(data[3].substr(0, pos)) - 1);
 
-                    f2.uv_cords.push_back(f.uv_cords[0]);
-                    f2.uv_cords.push_back(f.uv_cords[2]);
-                    f2.uv_cords.push_back(std::stoi(data[3].substr(pos + 1, data[3].length() - pos + 1)) - 1);
+                    f2.id_vt.push_back(f.id_vt[0]);
+                    f2.id_vt.push_back(f.id_vt[2]);
+                    f2.id_vt.push_back(std::stoi(data[3].substr(pos + 1, data[3].length() - pos + 1)) - 1);
 
                 }else
                 if(count == 2){
                     int pos1 = data[3].find('/');
                     int pos2 = data[3].rfind('/');
-                    f2.vert_cords.push_back(f.vert_cords[0]);
-                    f2.vert_cords.push_back(f.vert_cords[2]);                    
-                    f2.vert_cords.push_back(std::stoi(data[3].substr(0, pos1)) - 1);
+                    f2.id_v.push_back(f.id_v[0]);
+                    f2.id_v.push_back(f.id_v[2]);                    
+                    f2.id_v.push_back(std::stoi(data[3].substr(0, pos1)) - 1);
                     if((pos2 - pos1) > 1){
-                        f2.uv_cords.push_back(f.uv_cords[0]);
-                        f2.uv_cords.push_back(f.uv_cords[2]);
-                        f2.uv_cords.push_back(std::stoi(data[3].substr(pos1 + 1, pos2 - pos1 - 1)) - 1);
+                        f2.id_vt.push_back(f.id_vt[0]);
+                        f2.id_vt.push_back(f.id_vt[2]);
+                        f2.id_vt.push_back(std::stoi(data[3].substr(pos1 + 1, pos2 - pos1 - 1)) - 1);
                     }
-                    f2.normal_cords.push_back(f.normal_cords[0]);
-                    f2.normal_cords.push_back(f.normal_cords[2]);
-                    f2.normal_cords.push_back(std::stoi(data[3].substr(pos2 + 1, data[3].length() - pos2 + 1)) - 1);
+                    f2.id_vn.push_back(f.id_vn[0]);
+                    f2.id_vn.push_back(f.id_vn[2]);
+                    f2.id_vn.push_back(std::stoi(data[3].substr(pos2 + 1, data[3].length() - pos2 + 1)) - 1);
                 }
-                f2.material_id = index;
-                groups.back().faces.push_back(f2);
+                // f2.material_id = index;
+                groups.end()->objects.end()->faces.push_back(f2);                
             }
         }
     }
 
-    texture.read_tga_file((filename + "/textures/diffuse_test.tga").c_str());
     nameModel = filename.substr(filename.rfind('/') + 1, filename.length() - filename.rfind('/') - 1);
     z_buffer = new double[size_screen.x * size_screen.y];
     for(int i = 0; i < size_screen.x * size_screen.y; ++i) z_buffer[i] = -std::numeric_limits<double>::max();
+
+    min = max = groups[0].objects[0].verts[0];
+    for(int i = 0; i < groups.size(); ++i)
+        for(int j = 0; j < groups[i].objects.size(); ++j)
+                for(int c = 0; c < 3; ++c){
+                    min.x = groups[i].objects[j].verts[c].x < min.x ? groups[i].objects[j].verts[c].x : min.x;
+                    min.y = groups[i].objects[j].verts[c].y < min.y ? groups[i].objects[j].verts[c].y : min.y;
+                    max.x = groups[i].objects[j].verts[c].x > max.x ? groups[i].objects[j].verts[c].x : max.x;
+                    max.y = groups[i].objects[j].verts[c].y > max.y ? groups[i].objects[j].verts[c].y : max.y;
+                }
+
     size = Vec3d(max.x - min.x, max.y - min.y, max.z - min.z);
     scale = (size_screen.x / size.x)<(size_screen.y / size.y) ? (size_screen.x / size.x) : (size_screen.y / size.y);
+
     for(unsigned int i = 0; i < groups.size(); ++i) groups[i].visible = true;
     initGroups();
     // printInfo();
 }
 
-void Model::initMaterial(std::string filename){
+void Model::initMaterials(std::string filename){
     material m = {"Default", Vec3d(1, 1, 1), Vec3d(1, 1, 1), Vec3d(0, 0, 0), Vec3d(0, 0, 0), 0.0, 0.0, 1.0, 0, "", "", "", ""};
     materials.push_back(m);
     std::ifstream in;
@@ -324,6 +325,14 @@ void Model::initMaterial(std::string filename){
     }
 }
 
+void Model::initTextures(){
+    
+}
+
+void Model::initMaps(){
+    
+}
+
 void Model::initGroups(){
     if(nameModel == "Orc"){
         // groups[0].visible = false;  //Левый глаз
@@ -360,7 +369,7 @@ void Model::initGroups(){
         // groups[3].visible = false;  //Волосы
         // groups[4].visible = false;  //Брош
         // groups[5].visible = false;  //Сорочка
-        groups[6].visible = false;  //Юбка
+        // groups[6].visible = false;  //Юбка
         groups[7].visible = false;  //Тело
         groups[8].visible = false;  //Тело
         groups[9].visible = false;  //Подтяжки
@@ -386,8 +395,8 @@ Model::~Model() {
 }
 
 void Model::draw(HDC hdc){
-    // drawMeshTriangle(hdc);
-    drawMeshTexture(hdc);
+    drawMeshTriangle(hdc);
+    // drawMeshTexture(hdc);
     // drawMesh(hdc, RGB(255, 255, 255));
     // drawZ_buffer(hdc);
 }

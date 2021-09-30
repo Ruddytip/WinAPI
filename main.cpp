@@ -1,11 +1,10 @@
 #include "model.hpp"
-#include <ctime>
 
 LRESULT __stdcall WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 Vec2i size_screen(1500, 1000);
-// Model* model = new Model("obj/Man", size_screen);
+Model* model = new Model("obj/Man", size_screen);
 // Model* model = new Model("obj/Orc", size_screen);
-Model* model = new Model("obj/Elizabeth", size_screen);
+// Model* model = new Model("obj/Elizabeth", size_screen);
 
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow){
     WNDCLASS windowClass = { 0 };

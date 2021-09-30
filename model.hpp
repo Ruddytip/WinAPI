@@ -9,35 +9,31 @@
 
 class Model{
     private:
-	// РќР°Р·РІР°РЅРёРµ РјРѕРґРµР»Рё
+	// Название модели
 	std::string nameModel;
-	// РњР°СЃСЃРёРІ РєРѕРѕСЂРґРёРЅР°С‚ РІСЃРµС… РІРµСЂС€РёРЅ
-	std::vector<Vec3d> verts;
-	// РњР°СЃСЃРёРІ С‚РµРєСЃС‚СѓСЂРЅС‹С… РєРѕРѕСЂРґРёРЅР°С‚
-	std::vector<Vec2d> uv;
-	// РњР°СЃСЃРёРІ РЅРѕСЂРјР°Р»РµР№
-	std::vector<Vec3d> normals;
-	// РҐСЂР°РЅРёС‚ РЅР°Р·РІР°РЅРёРµ РіСЂСѓРї РёР· obj-С„Р°Р№Р»Р° Рё РјР°СЃСЃРёРІ РІСЃРµС… РіСЂР°РЅРµР№ РіСЂСѓРїРїС‹
+	// Хранит название групп из obj-файла
 	std::vector<group> groups;
-	// РњР°СЃРёРІ РјР°С‚РµСЂРёР°Р»РѕРІ
+	// Массив материалов
 	std::vector<material> materials;
-	// Р Р°Р·РјРµСЂ РѕРєРЅР°
+	// Массив текстур
+	std::vector<TGAImage> textures;
+	// Размер окна
 	Vec2i size_screen;
-	// Р Р°Р·РјРµСЂС‹ РјРѕРґРµР»Рё
+	// Размеры модели
 	Vec3d min, max;
 	Vec3d size;
 	double scale;
-	// Z-Р±СѓС„РµСЂ
+	// Z-буфер
 	double* z_buffer;
-	// РўРµРєСЃС‚СѓСЂР° РјРѕРґРµР»Рё
-	TGAImage texture;
 	void line(HDC hdc, Vec2i t0, Vec2i t1, const COLORREF &color);
 	void triangle(HDC hdc, Vec3d* t, const COLORREF &color);
 	void triangle(HDC hdc, Vec3d* t, int count, int n, double nor);
 	bool helpZ(Vec2i point, Vec3d* t);
 	void printInfo();
 	void initGroups();
-	void initMaterial(std::string filename);
+	void initMaterials(std::string filename);
+	void initTextures();
+	void initMaps();
 public:
 	Model(std::string filename, Vec2i _size_screen);
 	~Model();

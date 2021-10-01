@@ -48,4 +48,5 @@ public:
 	void drawMeshTriangle(HDC hdc);
 	void drawMeshTexture(HDC hdc);
 	void drawZ_buffer(HDC hdc);
+	void drawMaterial(HDC hdc);
 };

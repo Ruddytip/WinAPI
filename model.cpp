@@ -75,35 +75,35 @@ void Model::triangle(HDC hdc, Vec3d* t, const COLORREF &color){
     }
 }
 
-void Model::triangle(HDC hdc, Vec3d* t, int count, int n, double nor){
-    // Vec3d Min = t[0], Max = t[0];
-    // for(int i = 1; i < 3; ++i){
-    //     Min.x = t[i].x < Min.x? t[i].x: Min.x; Max.x = t[i].x > Max.x? t[i].x: Max.x;
-    //     Min.y = t[i].y < Min.y? t[i].y: Min.y; Max.y = t[i].y > Max.y? t[i].y: Max.y;
-    // }
+void Model::triangle(HDC hdc, Vec3d* t, int id_o, int n, double nor){
+    Vec3d Min = t[0], Max = t[0];
+    for(int i = 1; i < 3; ++i){
+        Min.x = t[i].x < Min.x? t[i].x: Min.x; Max.x = t[i].x > Max.x? t[i].x: Max.x;
+        Min.y = t[i].y < Min.y? t[i].y: Min.y; Max.y = t[i].y > Max.y? t[i].y: Max.y;
+    }
 
-    // Vec2d Mint = Vec2d(uv[groups[count].faces[n].uv_cords[0]].x, uv[groups[count].faces[n].uv_cords[0]].y);
-    // Vec2d Maxt = Vec2d(uv[groups[count].faces[n].uv_cords[0]].x, uv[groups[count].faces[n].uv_cords[0]].y);
-    // for(int i = 1; i < 3; ++i){
-    //     Mint.x = uv[groups[count].faces[n].uv_cords[i]].x<Mint.x?uv[groups[count].faces[n].uv_cords[i]].x:Mint.x;
-    //     Mint.y = uv[groups[count].faces[n].uv_cords[i]].y<Mint.y?uv[groups[count].faces[n].uv_cords[i]].y:Mint.y;
-    //     Maxt.x = uv[groups[count].faces[n].uv_cords[i]].x>Maxt.x?uv[groups[count].faces[n].uv_cords[i]].x:Maxt.x;
-    //     Maxt.y = uv[groups[count].faces[n].uv_cords[i]].y>Maxt.y?uv[groups[count].faces[n].uv_cords[i]].y:Maxt.y;
-    // }
+    Vec2d Mint = Vec2d(uv[objects[id_o].faces[n].id_vt[0]].x, uv[objects[id_o].faces[n].id_vt[0]].y);
+    Vec2d Maxt = Vec2d(uv[objects[id_o].faces[n].id_vt[0]].x, uv[objects[id_o].faces[n].id_vt[0]].y);
+    for(int i = 1; i < 3; ++i){
+        Mint.x = uv[objects[id_o].faces[n].id_vt[i]].x<Mint.x?uv[objects[id_o].faces[n].id_vt[i]].x:Mint.x;
+        Mint.y = uv[objects[id_o].faces[n].id_vt[i]].y<Mint.y?uv[objects[id_o].faces[n].id_vt[i]].y:Mint.y;
+        Maxt.x = uv[objects[id_o].faces[n].id_vt[i]].x>Maxt.x?uv[objects[id_o].faces[n].id_vt[i]].x:Maxt.x;
+        Maxt.y = uv[objects[id_o].faces[n].id_vt[i]].y>Maxt.y?uv[objects[id_o].faces[n].id_vt[i]].y:Maxt.y;
+    }
 
-    // for(int j = Min.y; j <= Max.y; ++j){
-    //     for(int i = Min.x; i <= Max.x; ++i){
-    //         Vec2i point(i, j);
-    //         if(inTriangle(point, t))
-    //             if(helpZ(point, t)){
-    //                 // double x = range(i, Max.x, Min.x, Mint.x, Maxt.x);
-    //                 // double y = range(j, Min.y, Max.y, Mint.y, Maxt.y);
-    //                 int c = range(groups[count].faces[n].material_id, 1, materials.size(), 0, 255);
-    //                 // TGAColor c = texture.get(x * texture.get_width(), y * texture.get_height());
-    //                 SetPixel(hdc, i, j, RGB(c, c, c));
-    //             }                        
-    //     }
-    // }
+    for(int j = Min.y; j <= Max.y; ++j){
+        for(int i = Min.x; i <= Max.x; ++i){
+            Vec2i point(i, j);
+            if(inTriangle(point, t))
+                if(helpZ(point, t)){
+                    // double x = range(i, Max.x, Min.x, Mint.x, Maxt.x);
+                    // double y = range(j, Min.y, Max.y, Mint.y, Maxt.y);
+                    int c = range(objects[id_o].faces[n].id_m, 1, materials.size(), 0, 255);
+                    // TGAColor c = texture.get(x * texture.get_width(), y * texture.get_height());
+                    SetPixel(hdc, i, j, RGB(c, c, c));
+                }                        
+        }
+    }
 }
 
 Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(), objects(), textures(), materials(), size_screen(_size_screen) {
@@ -111,7 +111,7 @@ Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(
     in.open(filename + "/model.obj", std::ifstream::in);
     if (in.fail()) return;
     std::string line, trash;
-    // int index = 0;
+    int index = 0;
     while (!in.eof()) {
         std::getline(in, line);
         std::stringstream iss(line);
@@ -122,7 +122,7 @@ Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(
         }
         if(!line.compare(0, 7, "usemtl ")) {
             trash = line.erase(0, 7);
-            // for(unsigned int i = 0; i < materials.size(); ++i) if(materials[i].name == trash) {index = i; break;}
+            for(unsigned int i = 0; i < materials.size(); ++i) if(materials[i].name == trash) {index = i; break;}
         }
         if(!line.compare(0, 2, "g ")){
 
@@ -181,7 +181,7 @@ Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(
                     f.id_vn.push_back(std::stoi(data[i].substr(pos2 + 1, data[i].length() - pos2 + 1)) - 1);
                 }
             }
-            // f.material_id = index;
+            f.id_m = index;
             objects.back().faces.push_back(f);
 
             iss >> data[3];
@@ -222,7 +222,7 @@ Model::Model(std::string filename, Vec2i _size_screen) : verts(), uv(), normals(
                     f2.id_vn.push_back(f.id_vn[2]);
                     f2.id_vn.push_back(std::stoi(data[3].substr(pos2 + 1, data[3].length() - pos2 + 1)) - 1);
                 }
-                // f2.material_id = index;
+                f2.id_m = index;
                 objects.back().faces.push_back(f2);                
             }
         }
@@ -389,6 +389,7 @@ void Model::printInfo(){
     for(unsigned int i = 0; i < objects.size(); ++i)
             std::cerr << i << " - " << objects[i].name << ": faces - " << objects[i].faces.size() << std::endl;
     std::cerr << "Verts count - " << verts.size() << std::endl;
+    std::cerr << "Materal count - " << materials.size() << std::endl;
 }
 
 Model::~Model() {
@@ -397,9 +398,10 @@ Model::~Model() {
 
 void Model::draw(HDC hdc){
     // drawMesh(hdc, RGB(255, 255, 255));
-    drawMeshTriangle(hdc);
+    // drawMeshTriangle(hdc);
     // drawMeshTexture(hdc);
     // drawZ_buffer(hdc);
+    drawMaterial(hdc);
 }
 
 void Model::drawZ_buffer(HDC hdc){
@@ -435,6 +437,29 @@ void Model::drawZ_buffer(HDC hdc){
             int color = range(z_buffer[i + j * size_screen.x], (min.z - min.z) * scale, (max.z - min.z) * scale, 0, 255);
             SetPixel(hdc, i, j, RGB(color, color, color));
         }
+}
+
+void Model::drawMaterial(HDC hdc){
+for(int i = 0; i < size_screen.x * size_screen.y; ++i) z_buffer[i] = -std::numeric_limits<double>::max();
+    for(unsigned int id_o = 0; id_o < objects.size(); ++id_o){
+        if(!objects[id_o].visible) continue;
+        for (unsigned int i = 0; i < objects[id_o].faces.size(); ++i) {
+            Vec3d screen_coords[3];
+            Vec3d world_coords[3];
+            for (int j = 0; j < 3; j++) {
+                world_coords[j] = verts[objects[id_o].faces[i].id_v[j]];
+                screen_coords[j] = (world_coords[j] - min) * scale;
+                screen_coords[j].y = size_screen.y - screen_coords[j].y;
+            }
+            Vec3d normal = (world_coords[0] - world_coords[1]) ^ (world_coords[0] - world_coords[2]);
+            double intensity = normal.getCosAngle(Vec3d(0.0, 0.0, 1.0));
+            int c = 255 / 2;
+            if(materials.size() > 1)
+                c = range(objects[id_o].faces[i].id_m, 0, materials.size()-1, 0, 255);
+            if(intensity > 0)
+                triangle(hdc, screen_coords, RGB(c, c, c));
+        }
+    }
 }
 
 void Model::drawMesh(HDC hdc, const COLORREF &color){
@@ -477,21 +502,21 @@ void Model::drawMeshTriangle(HDC hdc){
 }
 
 void Model::drawMeshTexture(HDC hdc){
-    // for(int i = 0; i < size_screen.x * size_screen.y; ++i) z_buffer[i] = -std::numeric_limits<double>::max();
-    // for(unsigned int count = 0; count < groups.size(); ++count){
-    //     if(!groups[count].visible) continue;
-    //     for (unsigned int i = 0; i < groups[count].faces.size(); ++i) {
-    //         Vec3d screen_coords[3];
-    //         Vec3d world_coords[3];
-    //         for (int j = 0; j < 3; j++) {
-    //             world_coords[j] = verts[groups[count].faces[i].vert_cords[j]];
-    //             screen_coords[j] = (world_coords[j] - min) * scale;
-    //             screen_coords[j].y = size_screen.y - screen_coords[j].y;
-    //         }
-    //         Vec3d normal = (world_coords[0] - world_coords[1]) ^ (world_coords[0] - world_coords[2]);
-    //         double intensity = normal.getCosAngle(Vec3d(0.0, 0.0, 1.0));
-    //         if(intensity > 0)
-    //             triangle(hdc, screen_coords, count, i, intensity);
-    //     }
-    // }
+    for(int i = 0; i < size_screen.x * size_screen.y; ++i) z_buffer[i] = -std::numeric_limits<double>::max();
+    for(unsigned int id_o = 0; id_o < objects.size(); ++id_o){
+        if(!objects[id_o].visible) continue;
+        for (unsigned int i = 0; i < objects[id_o].faces.size(); ++i) {
+            Vec3d screen_coords[3];
+            Vec3d world_coords[3];
+            for (int j = 0; j < 3; j++) {
+                world_coords[j] = verts[objects[id_o].faces[i].id_v[j]];
+                screen_coords[j] = (world_coords[j] - min) * scale;
+                screen_coords[j].y = size_screen.y - screen_coords[j].y;
+            }
+            Vec3d normal = (world_coords[0] - world_coords[1]) ^ (world_coords[0] - world_coords[2]);
+            double intensity = normal.getCosAngle(Vec3d(0.0, 0.0, 1.0));
+            if(intensity > 0)
+                triangle(hdc, screen_coords, id_o, i, intensity);
+        }
+    }
 }

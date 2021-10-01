@@ -2,9 +2,11 @@
 
 LRESULT __stdcall WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 Vec2i size_screen(1500, 1000);
-// Model* model = new Model("obj/Man", size_screen);
-// Model* model = new Model("obj/Orc", size_screen);
-// Model* model = new Model("obj/Elizabeth", size_screen);
+Model* model = new Model("../obj/airpods", size_screen);
+// Model* model = new Model("../obj/anorexic", size_screen);
+// Model* model = new Model("../obj/elizabeth", size_screen);
+// Model* model = new Model("../obj/man", size_screen);
+// Model* model = new Model("../obj/orc", size_screen);
 
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow){
     WNDCLASS windowClass = { 0 };
@@ -66,7 +68,7 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
             
             // Здесь рисуем на контексте hCmpDC
             ////////////////////////////////////////////////////////////////////////////////////////////////////
-            // model->draw(hCmpDC);
+            model->draw(hCmpDC);
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // Копируем изображение из теневого контекста на экран
             SetStretchBltMode(hdc, COLORONCOLOR);
@@ -80,7 +82,7 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
         break;
 
         case WM_DESTROY:
-        // delete model;
+        delete model;
         PostQuitMessage(0);
         return 0;
     }

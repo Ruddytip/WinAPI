@@ -17,8 +17,8 @@ class Model{
 	std::vector<Vec2d> uv;
 	// Массив нормалей обекта
 	std::vector<Vec3d> normals;
-	// Хранит название групп из obj-файла и объекты в этих группах
-	std::vector<group> groups;
+	// Обекты модели
+	std::vector<object> objects;
 	// Массив текстур
 	std::vector<TGAImage> textures;
 	// Массив материалов

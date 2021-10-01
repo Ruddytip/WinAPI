@@ -89,16 +89,6 @@ struct object{
 	bool visible;
 };
 
-// Группа объектов
-struct group{
-	// Название группы
-	std::string name;
-	// Обекты
-	std::vector<object> objects;
-	// Используется для отображения при отрисовке
-	bool visible;
-};
-
 // Материал
 struct material{
 	// Название материала

@@ -5,7 +5,6 @@
 #include <fstream>
 #include <sstream>
 #include "geometry.hpp"
-#include "tgaimage.hpp"
 
 class Model{
     private:
@@ -19,8 +18,8 @@ class Model{
 	std::vector<Vec3d> normals;
 	// Обекты модели
 	std::vector<object> objects;
-	// Массив текстур
-	std::vector<TGAImage> textures;
+	// Текстуры
+	std::vector<texture> textures;
 	// Массив материалов
 	std::vector<material> materials;
 	// Размер окна
@@ -38,8 +37,6 @@ class Model{
 	void printInfo();
 	void initGroups();
 	void initMaterials(std::string filename);
-	void initTextures();
-	void initMaps();
 public:
 	Model(std::string filename, Vec2i _size_screen);
 	~Model();

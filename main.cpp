@@ -4,8 +4,8 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 Vec2i size_screen(1500, 1000);
 // Model* model = new Model("../obj/airpods", size_screen);
 // Model* model = new Model("../obj/anorexic", size_screen);
-Model* model = new Model("../obj/elizabeth", size_screen);
-// Model* model = new Model("../obj/man", size_screen);
+// Model* model = new Model("../obj/elizabeth", size_screen);
+Model* model = new Model("../obj/man", size_screen);
 // Model* model = new Model("../obj/orc", size_screen);
 
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow){

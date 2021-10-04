@@ -1,5 +1,5 @@
-#ifndef __IMAGE_H__
-#define __IMAGE_H__
+#ifndef __IMAGE_HPP__
+#define __IMAGE_HPP__
 
 #include <fstream>
 
@@ -93,4 +93,4 @@ public:
 	void clear();
 };
 
-#endif //__IMAGE_H__
+#endif //__IMAGE_HPP__

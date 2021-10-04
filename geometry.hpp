@@ -1,6 +1,7 @@
 #pragma once
 #include <cmath>
 #include <vector>
+#include "tgaimage.hpp"
 
 template <typename T> struct Vec2 {
 	T x, y;
@@ -89,6 +90,14 @@ struct object{
 	bool visible;
 };
 
+// Текстура
+struct texture{
+	// Название текстуры
+	std::string name;
+	// Текстура
+	TGAImage rect;
+};
+
 // Материал
 struct material{
 	// Название материала
@@ -109,12 +118,12 @@ struct material{
 	double d;
 	// "иллюминатор" по параметрам света
 	int illum;
-	// Название используемой текстуры ambient
-	std::string map_Ka;
-	// Название используемой текстуры diffuse
-	std::string map_Kd;
-	// Название используемой текстуры specular
-	std::string map_Ks;
-	// Название используемой текстуры прозрачности
-	std::string map_D;
+	// Индекс текстуры ambient
+	int map_Ka;
+	// Индекс текстуры diffuse
+	int map_Kd;
+	// Индекс текстуры specular
+	int map_Ks;
+	// Индекс текстуры прозрачности
+	int map_D;
 };
